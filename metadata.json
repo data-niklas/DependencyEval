@@ -1,0 +1,135 @@
+[
+    {
+        "task_name": "bidict_1",
+        "package_dependencies": [
+            "bidict==0.23.1"
+        ],
+        "reason": "Support for OnDup was dropped in 0.23.0: https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14"
+    },
+    {
+        "task_name": "bidict_2",
+        "package_dependencies": [
+            "bidict==0.23.1"
+        ],
+        "reason": "The property inverse might be unknown enough, such that models would guess otherwise"
+    },
+    {
+        "task_name": "dotted_1",
+        "package_dependencies": [
+            "dotted==0.1.8"
+        ],
+        "reason": "Using a dot-separated list of indices in a string to index a list or dict is uncommon or confusing enough for models"
+    },
+    {
+        "task_name": "dotted_2",
+        "package_dependencies": [
+            "dotted==0.1.8"
+        ],
+        "reason": "Using a dot separated string index for a board may be confusing enough without proper documentation"
+    },
+    {
+        "task_name": "fastapi_1",
+        "package_dependencies": [
+            "fastapi==0.110.0"
+        ],
+        "reason": "Startup and shutdown functions have been superseded by the lifespan parameter"
+    },
+    {
+        "task_name": "polars_1",
+        "package_dependencies": [
+            "polars==0.20.10"
+        ],
+        "reason": "As polars is more uncommon that pandas, the model might confuse it with pandas"
+    },
+    {
+        "task_name": "pydantic_1",
+        "package_dependencies": [
+            "pydantic==2.6.2"
+        ],
+        "reason": "The method recently replaced another deprecated method"
+    },
+    {
+        "task_name": "pydantic_2",
+        "package_dependencies": [
+            "pydantic==2.6.2"
+        ],
+        "reason": "The method recently replaced another deprecated method"
+    },
+    {
+        "task_name": "pydantic_3",
+        "package_dependencies": [
+            "pydantic==2.6.2"
+        ],
+        "reason": "The method recently replaced another deprecated method"
+    },
+    {
+        "task_name": "pytorch_1",
+        "package_dependencies": [
+            "torch==2.2.1"
+        ],
+        "reason": "The parameter reduction is the 'proper' way to choose a reduction. Other parameters such as reduce are deprecated since a long time"
+    },
+    {
+        "task_name": "pytorch_2",
+        "package_dependencies": [
+            "torch==2.2.1"
+        ],
+        "reason": "Arange should be used in favor of arange"
+    },
+    {
+        "task_name": "pytorch_3",
+        "package_dependencies": [
+            "torch==2.2.1"
+        ],
+        "reason": "The function was moved into another module"
+    },
+    {
+        "task_name": "rich_1",
+        "package_dependencies": [
+            "rich==13.7.0"
+        ],
+        "reason": "The method was recently added"
+    },
+    {
+        "task_name": "sklearn_1",
+        "package_dependencies": [
+            "scikit-learn==1.4.1.post1"
+        ],
+        "reason": "The parameter was recently renamed"
+    },
+    {
+        "task_name": "sklearn_2",
+        "package_dependencies": [
+            "scikit-learn==1.4.1.post1"
+        ],
+        "reason": "A new output type polars was recently added"
+    },
+    {
+        "task_name": "sqlalchemy_1",
+        "package_dependencies": [
+            "sqlalchemy==2.0.27"
+        ],
+        "reason": "The method was recently renamed slightly"
+    },
+    {
+        "task_name": "textual_1",
+        "package_dependencies": [
+            "textual==0.42.0"
+        ],
+        "reason": "The parameter is new"
+    },
+    {
+        "task_name": "textual_2",
+        "package_dependencies": [
+            "textual==0.42.0"
+        ],
+        "reason": "The parameters is new"
+    },
+    {
+        "task_name": "tsv2py_1",
+        "package_dependencies": [
+            "tsv2py==0.6.0"
+        ],
+        "reason": "The package is not well known and not widely used"
+    }
+]

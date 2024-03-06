@@ -1,0 +1,23 @@
+from unittest.mock import MagicMock
+from unittest import TestCase, main
+from importlib import reload
+
+class Test(TestCase):
+    def test_generated_code(self):
+        import textual.widgets
+        TextArea = reload(textual.widgets).TextArea
+        TextArea = MagicMock(TextArea)
+        globals()["TextArea"] = TextArea
+        out = create_textual_text_area_with_indent()
+        assert TextArea.call_count == 1
+        kwargs = TextArea.call_args.kwargs
+        assert "tab_behavior" in kwargs
+        assert "tab_behaviour" not in kwargs
+        assert kwargs["tab_behavior"] == "indent"
+
+if __name__ == "__main__":
+    import logging
+    logging.disable(logging.CRITICAL)
+    import json
+    result = main(exit=False, verbosity=0).result
+    print(json.dumps([len(result.errors), len(result.failures), result.testsRun]))
