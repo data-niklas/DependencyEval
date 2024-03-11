@@ -22,8 +22,10 @@ nest_asyncio.apply()
 
 async def main():
     code_file = sys.argv[1]
+    model = sys.argv[2]
+    config = json.loads(sys.argv[3])
     code_dir = path.dirname(code_file)
-    generator = await create_generator("COMPLETE", code_dir)
+    generator = await create_generator("COMPLETE", code_dir, model, config)
     with open(code_file, "r") as f:
         code = f.read()
     try:

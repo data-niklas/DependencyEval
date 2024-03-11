@@ -15,9 +15,11 @@ CODE_FILE = path.join(CODE_DIR, "code.py")
 VENV_DIR = path.join(CODE_DIR, "venv")
 VENV_CACHE = path.join(path.dirname(__file__), ".venv_cache")
 
-def create_venv(venv_dir, requirements, venv_cache):
+def create_venv(venv_dir, requirements, venv_cache, llm_lsp_path):
     requirements_text = "\n".join(requirements)
     requirements_hash = sha256(requirements_text.encode()).hexdigest()
+    requirements.append(llm_lsp_path)
+    requirements_text = "\n".join(requirements)
     if not path.exists(venv_cache):
         os.makedirs(venv_cache)
     cached_venv_dir = path.join(venv_cache, requirements_hash)
@@ -45,13 +47,12 @@ def create_venv(venv_dir, requirements, venv_cache):
     clone_virtualenv(cached_venv_dir, venv_dir)
 
 def main():
-    #llm_lsp_path = sys.argv[1]
-    llm_lsp_path = "/nfs/home/nloeser_msc2023/llm-lsp"
-    #dataset = sys.argv[2]
-    dataset = "/scratch/students/nloeser_msc2023/dataset/DependencyEval_0.1.0_generated.jsonl"
+    llm_lsp_path = sys.argv[1]
+    dataset = sys.argv[2]
     venv_cache = VENV_CACHE if len(sys.argv) < 4 else sys.argv[3]
     with open(dataset, "r") as f:
-        items = [json.loads(i) for i in f.read().splitlines()]
+        model_items = json.loads(f.read())
+        items = model_items["items"]
     success = 0
     error = 0
     for item in tqdm(items):
@@ -60,9 +61,8 @@ def main():
             rmtree(CODE_DIR)
         os.mkdir(CODE_DIR)
         requirements = item["package_dependencies"].copy()
-        requirements.append(llm_lsp_path)
         tqdm.write("Creating venv")
-        create_venv(VENV_DIR, requirements, venv_cache)
+        create_venv(VENV_DIR, requirements, venv_cache, llm_lsp_path)
         code = item["generated_code"] + "\n\n" + item["test_code"]
         with open(CODE_FILE, "w") as f:
             f.write(code)
@@ -72,21 +72,27 @@ def main():
             output, errors = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate(timeout=60)
             stdout_text = output.decode()
             results = json.loads(stdout_text)
-            r = ", ".join(results)
+            print(results)
+            r = ", ".join(map(str, results))
             tqdm.write(f"Test results: {r}")
             item["test_results"] = results
-            if len(results[0]) > 0 or len(results[1]) > 0:
+            if results[0] > 0 or results[1] > 0:
                 error += 1
             else:
                 success += 1
-        except Exception:
+        except Exception as e:
+            print(e)
             results = ["error", "error", "error"]
             item["test_results"] = results
             error += 1
         rmtree(CODE_DIR)
-    with open(dataset.replace(".jsonl", "_tested.jsonl"), "w") as f:
-        f.write("\n".join([json.dumps(i) for i in items]))
-    with open(dataset.replace(".jsonl", "_tested.metrics"), "w") as f:
+    model_items["results"] = {
+        "success": success,
+        "error": error
+    }
+    with open(dataset.replace(".json", "_tested.json"), "w") as f:
+        f.write(json.dumps(model_items))
+    with open(dataset.replace(".json", "_tested.metrics"), "w") as f:
         f.write("\n".join(["Success: " + str(success), "Error: " + str(error)]))
 
         

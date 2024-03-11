@@ -1,0 +1,9 @@
+{
+    "model": "codellama/CodeLlama-7b-Instruct-hf",
+    "config": {
+        "do_sample": false,
+        "num_return_sequences": 1,
+        "max_new_tokens": 2048,
+        "repetition_penalty": 1.3
+    }
+}
