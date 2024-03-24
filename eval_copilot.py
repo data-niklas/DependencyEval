@@ -19,14 +19,19 @@ from lsprotocol.types import *
 
 EVAL_PROMPT = path.join(path.dirname(__file__), "eval_prompt.py")
 
+
 @dataclass
 class Dataset:
     name: str
     items: List[Dict[str, Any]]
 
+
 async def create_copilot_lsp(code_dir, copilot_node_server_dir):
     lsp: BaseLanguageClient = BaseLanguageClient("copilot", "1.0.0")
-    await lsp.start_io("node", path.join(copilot_node_server_dir, "copilot","dist","agent.js", "--stdio")
+    await lsp.start_io(
+        "node",
+        path.join(copilot_node_server_dir, "copilot", "dist", "agent.js", "--stdio"),
+    )
 
     @lsp.feature("workspace/configuration")
     def configuration(ls, params):
@@ -77,7 +82,7 @@ async def create_copilot_lsp(code_dir, copilot_node_server_dir):
                             tag_support=CompletionClientCapabilitiesCompletionItemTypeTagSupportType(
                                 value_set=[CompletionItemTag.Deprecated]
                             ),
-                            insert_replace_support=True
+                            insert_replace_support=True,
                         )
                     ),
                     publish_diagnostics=PublishDiagnosticsClientCapabilities(
@@ -95,56 +100,51 @@ async def create_copilot_lsp(code_dir, copilot_node_server_dir):
     lsp.workspace_did_change_configuration(
         DidChangeConfigurationParams(
             settings={
-                "http":{
-                    "proxy":None,
-                    "proxyStrictSSL":None
-
-                    },
-                "github-enterprise":{
-                    "uri":"https://github.com",
-                    }
+                "http": {"proxy": None, "proxyStrictSSL": None},
+                "github-enterprise": {
+                    "uri": "https://github.com",
+                },
             }
         )
     )
     return lsp
 
 
-
 def load_dataset(dataset_path):
     with open(dataset_path, "r") as f:
         items = [json.loads(i) for i in f.read().splitlines()]
-    return Dataset(
-        name=path.basename(dataset_path)[:-6],
-        items=items
-    )
-    
+    return Dataset(name=path.basename(dataset_path)[:-6], items=items)
+
+
 def code_directory(item):
     return path.join(path.dirname(__file__), "eval_code_" + item["task_name"])
 
-def create_venv(venv_cache, venv_path, llm_lsp_path, item):
+
+def create_venv(venv_cache, venv_path, item):
     requirements = item["package_dependencies"].copy()
     requirements_text = "\n".join(requirements)
     requirements_hash = sha256(requirements_text.encode()).hexdigest()
-    requirements.append("-e " + llm_lsp_path)
     requirements_text = "\n".join(requirements)
     if not path.exists(venv_cache):
         os.makedirs(venv_cache)
     cached_venv_dir = path.join(venv_cache, requirements_hash)
     if not path.exists(cached_venv_dir):
         tqdm.write("Creating new venv in cache")
-        builder = EnvBuilder(system_site_packages=False,
-                                clear=False,
-                                symlinks=True,
-                                upgrade=False,
-                                with_pip=True,
-                                prompt=None,
-                                upgrade_deps=False)
+        builder = EnvBuilder(
+            system_site_packages=False,
+            clear=False,
+            symlinks=True,
+            upgrade=False,
+            with_pip=True,
+            prompt=None,
+            upgrade_deps=False,
+        )
         builder.create(cached_venv_dir)
         context = builder.ensure_directories(cached_venv_dir)
         requirements_file = "__requirements__.txt"
         with open(requirements_file, "w") as f:
             f.write(requirements_text)
-        cmd = [context.env_exec_cmd, '-m', 'pip', 'install', '-r', requirements_file]
+        cmd = [context.env_exec_cmd, "-m", "pip", "install", "-r", requirements_file]
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         os.remove(requirements_file)
     clone_virtualenv(cached_venv_dir, venv_path)
@@ -157,8 +157,10 @@ def get_completion_code(item):
     code += item["function_signature"] + "\n  " + item["function_documentation"] + "\n"
     return code
 
+
 def get_generated_vanilla_code(item):
     return get_completion_code(item) + item["generated_code_vanilla"]
+
 
 def char_line_of_code(code):
     if code == "":
@@ -174,7 +176,7 @@ async def generate_item(item, lsp):
     code = get_completion_code(item)
     code_path = path.join(code_dir, "code.py")
     with open(code_path, "w") as f:
-        f.write(code) 
+        f.write(code)
     uri = "file://" + path.abspath(code_path)
     text_document_item = TextDocumentItem(
         uri=uri,
@@ -192,30 +194,24 @@ async def generate_item(item, lsp):
         "insertSpaces": True,
         "tabSize": 4,
         "indentSize": 4,
-        "position": {
-            "line": line,
-            "character": char
-        }
+        "position": {"line": line, "character": char},
     }
     completions = await lsp.protocol.send_request_async(
         "getCompletions",
-        {
-            "doc": doc,
-            "textDocument": {
-                "uri": doc["uri"],
-                "version": doc["version"]
-                }
-        }
+        {"doc": doc, "textDocument": {"uri": doc["uri"], "version": doc["version"]}},
     )
 
     return generated
 
+
 DOCKER_IMAGE = "python:3.8-alpine"
+
+
 def eval_item(item, code_dir, venv_path):
     code = get_generated_vanilla_code(item)
     code_path = path.join(code_dir, "code.py")
     with open(code_path, "w") as f:
-        f.write(code)   
+        f.write(code)
     tqdm.write("Running evaluation")
     cmd = [
         "docker",
@@ -232,14 +228,18 @@ def eval_item(item, code_dir, venv_path):
         f"{code_path}:/code/code.py",
         "-w",
         "/code",
-        "--cpus", "1",
-        "--network", "none",
+        "--cpus",
+        "1",
+        "--network",
+        "none",
         DOCKER_IMAGE,
         "/venv/bin/python",
-        "code.py"
+        "code.py",
     ]
     try:
-        output, errors = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate(timeout=60)
+        output, errors = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        ).communicate(timeout=60)
         stdout_text = output.decode()
         results = json.loads(stdout_text)
         r = ", ".join(map(str, results))
@@ -249,18 +249,15 @@ def eval_item(item, code_dir, venv_path):
         tqdm.write(f"Error: {e}")
         results = ["error", "error", "error"]
         item["test_results"] = results
-        cmd = [
-            "docker",
-            "rm",
-            "-f",
-            "dev_dataset_eval_item"
-        ]
+        cmd = ["docker", "rm", "-f", "dev_dataset_eval_item"]
         subprocess.run(cmd)
     return results
+
 
 def output_path(results):
     file_name = "copilot.json"
     return path.join(results, file_name)
+
 
 async def main(args):
     venv_cache = args.venv_cache
@@ -268,7 +265,6 @@ async def main(args):
     results = args.results
     if not os.path.exists(results):
         os.makedirs(results)
-    
 
     for item in tqdm(dataset.items):
         code_dir = code_directory(item)
@@ -277,7 +273,7 @@ async def main(args):
         os.mkdir(code_dir)
 
         venv_path = path.join(code_dir, "venv")
-        create_venv(venv_cache, venv_path, llm_lsp_path, item)
+        create_venv(venv_cache, venv_path, item)
         lsp = await create_copilot_lsp(code_dir)
         generated_without = await generate_item(item, lsp)
         item["generated_code_vanilla"] = generated_without
@@ -290,16 +286,17 @@ async def main(args):
         f.write(json.dumps(dataset.items))
 
 
-
-
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument("-a", "--action", default="all", choices=["all", "generate", "eval"])
+    parser.add_argument(
+        "-a", "--action", default="all", choices=["all", "generate", "eval"]
+    )
     parser.add_argument("-d", "--dataset", required=True)
     parser.add_argument("-c", "--venv-cache", default="venv_cache")
     parser.add_argument("-r", "--results", default="results")
+
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     asyncio.run(main(parse_args()))
-
