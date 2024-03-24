@@ -10,26 +10,31 @@ import json
 import sys
 
 
-from llm_lsp.__main__ import create_lsp, initialize_generation, create_generator
-from llm_lsp.lsp_processor import LspLogitsProcessor
-from llm_lsp.lsp_client import LspClient
-from llm_lsp.constants import *
-from llm_lsp.generator import LspGenerator
-from llm_lsp.interrupts import InterruptStoppingCriteria, Interrupt, handle_deprecation_interrupt, handle_signature_interrupt
+from llm_lsp.generator import Generator
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 import nest_asyncio
 nest_asyncio.apply()
 
 async def main():
     code_file = sys.argv[1]
-    model = sys.argv[2]
-    config = json.loads(sys.argv[3])
+    model_name = sys.argv[2]
+    generation_config = json.loads(sys.argv[3])
+    with_llm_lsp = json.loads(sys.argv[4])
+    disabled=not with_llm_lsp
     code_dir = path.dirname(code_file)
-    generator = await create_generator("COMPLETE", code_dir, model, config)
+
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    model.half().to("cuda")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer.pad_token_id = tokenizer.eos_token_id
+
+    generator = Generator(model, tokenizer, generation_config, disabled=disabled)
+
     with open(code_file, "r") as f:
         code = f.read()
     try:
-        generated_code = generator(code, code_file)
+        generated_code = await generator.complete(code, code_dir)
     except Exception as e:
         generated_code = "Error: " + str(e)
     print(generated_code)

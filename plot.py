@@ -29,6 +29,8 @@ def lt_config(a, b):
         a["do_sample"] = False
     if "do_sample" not in b:
         b["do_sample"] = False
+    if "num_beams" in a and "num_beams" not in b:
+        return False
     return a["do_sample"] < b["do_sample"]
 
 
@@ -38,6 +40,25 @@ def cmp(a, b):
     if a["config"] != b["config"]:
         return -1 if lt_config(a["config"], b["config"]) else 1
     return -1 if a["method"] < b["method"] else 1   
+
+def method_name(method):
+    if method == "default":
+        return ""
+    else:
+        return " +" + method
+
+def config_name(config):
+    if "do_sample" in config and config["do_sample"] == True:
+        return " °" + "{:.2f}".format(config["temperature"])
+    else:
+        return ""
+
+def beam_name(config):
+    if "num_beams" in config:
+        return " |" + str(config["num_beams"])
+    else:
+        return ""
+
 
 def main():
     results_dir = sys.argv[1]
@@ -53,7 +74,7 @@ def main():
     for item in items:
         item["items"].sort(key=lambda x: x["task_name"])
     row_names = [i["task_name"] for i in items[0]["items"]]
-    column_names = [i["model"] + " " + i["method"] for i in items]
+    column_names = [i["model"].split("/")[1].split("-")[0] + method_name(i["method"]) + config_name(i["config"]) + beam_name(i["config"]) for i in items]
     text = []
     for j in range(len(row_names)):
         row = []
