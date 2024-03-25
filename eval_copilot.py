@@ -26,12 +26,15 @@ class Dataset:
     items: List[Dict[str, Any]]
 
 
-async def create_copilot_lsp(code_dir, copilot_node_server_dir):
+async def create_copilot_lsp(code_dir):
+    copilot_node_server_dir = "copilot-node-server"
     lsp: BaseLanguageClient = BaseLanguageClient("copilot", "1.0.0")
     await lsp.start_io(
         "node",
-        path.join(copilot_node_server_dir, "copilot", "dist", "agent.js", "--stdio"),
+        path.join(copilot_node_server_dir, "copilot", "dist", "agent.js"),
+        "--stdio",
     )
+    logger.debug("Started LSP")
 
     @lsp.feature("workspace/configuration")
     def configuration(ls, params):
@@ -172,7 +175,7 @@ def char_line_of_code(code):
     return max(last_char_index, 0), max(last_line_index, 0)
 
 
-async def generate_item(item, lsp):
+async def generate_item(item, lsp, code_dir):
     code = get_completion_code(item)
     code_path = path.join(code_dir, "code.py")
     with open(code_path, "w") as f:
@@ -200,7 +203,7 @@ async def generate_item(item, lsp):
         "getCompletions",
         {"doc": doc, "textDocument": {"uri": doc["uri"], "version": doc["version"]}},
     )
-
+    generated = completions.completions[0].text
     return generated
 
 
@@ -272,13 +275,13 @@ async def main(args):
             rmtree(code_dir)
         os.mkdir(code_dir)
 
-        venv_path = path.join(code_dir, "venv")
-        create_venv(venv_cache, venv_path, item)
+        # venv_path = path.join(code_dir, "venv")
+        # create_venv(venv_cache, venv_path, item)
         lsp = await create_copilot_lsp(code_dir)
-        generated_without = await generate_item(item, lsp)
+        generated_without = await generate_item(item, lsp, code_dir)
         item["generated_code_vanilla"] = generated_without
-        eval_results_without = eval_item(item, code_dir, venv_path)
-        item["evaluated_code_vanilla"] = eval_results_without
+        # eval_results_without = eval_item(item, code_dir, venv_path)
+        # item["evaluated_code_vanilla"] = eval_results_without
         rmtree(code_dir)
 
     out_path = output_path(results)
