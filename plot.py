@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 import sys
 from os import path
 import os
@@ -41,11 +41,6 @@ def cmp(a, b):
         return -1 if lt_config(a["config"], b["config"]) else 1
     return -1 if a["method"] < b["method"] else 1   
 
-def method_name(method):
-    if method == "default":
-        return ""
-    else:
-        return " +" + method
 
 def config_name(config):
     if "do_sample" in config and config["do_sample"] == True:
@@ -59,12 +54,21 @@ def beam_name(config):
     else:
         return ""
 
+def find_column_names(items):
+    names = []
+    for i in items:
+        base_name = i["model"].split("/")[1].split("-")[0] + "METHOD" + config_name(i["config"]) + beam_name(i["config"])
+        if "evaluated_code_vanilla" in i["items"][0]:
+            names.append(base_name.replace("METHOD", ""))
+        if "evaluated_code_llm_lsp" in i["items"][0]:
+            names.append(base_name.replace("METHOD", " +lsp"))
+    return names
 
 def main():
     results_dir = sys.argv[1]
     items = []
     for name in os.listdir(results_dir):
-        if not name.endswith("tested.json"):
+        if not name.endswith(".json"):
             continue
         with open(path.join(results_dir, name), "r") as f:
             item = json.loads(f.read())
@@ -74,14 +78,20 @@ def main():
     for item in items:
         item["items"].sort(key=lambda x: x["task_name"])
     row_names = [i["task_name"] for i in items[0]["items"]]
-    column_names = [i["model"].split("/")[1].split("-")[0] + method_name(i["method"]) + config_name(i["config"]) + beam_name(i["config"]) for i in items]
+    column_names = find_column_names(items)
     text = []
     for j in range(len(row_names)):
         row = []
         for i in items:
-            results = i["items"][j]["test_results"]
-            t = "o" if results[0] == 0 and results[1] == 0 else ""
-            row.append(t)
+            item = i["items"][j]
+            if "evaluated_code_vanilla" in item:
+                results = item["evaluated_code_vanilla"]
+                t = "o" if results[0] == 0 and results[1] == 0 else ""
+                row.append(t)
+            if "evaluated_code_llm_lsp" in item:
+                results = item["evaluated_code_llm_lsp"]
+                t = "o" if results[0] == 0 and results[1] == 0 else ""
+                row.append(t)
         text.append(row)
 
     for row, name in zip(text, row_names):

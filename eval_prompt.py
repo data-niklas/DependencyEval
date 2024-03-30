@@ -8,7 +8,7 @@ import os
 from os import path
 import json
 import sys
-
+from asyncio import CancelledError
 
 from llm_lsp.generator import Generator
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -40,4 +40,9 @@ async def main():
     print(generated_code)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except CancelledError as e:
+        print("Error: " + str(e))
+    except Exception as e:
+        print("Error: " + str(e))

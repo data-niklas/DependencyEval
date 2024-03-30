@@ -80,12 +80,13 @@ def create_venv(venv_cache, venv_path, llm_lsp_path, item):
         os.remove(requirements_file)
     clone_virtualenv(cached_venv_dir, venv_path)
 
+INDENT = "    "
 
 def get_completion_code(item):
     code = "\n".join(item["import_statements"]) + "\n\n"
     if item["context"] != "":
         code += item["context"] + "\n\n"
-    code += item["function_signature"] + "\n  " + item["function_documentation"] + "\n"
+    code += item["function_signature"] + "\n" + INDENT + item["function_documentation"] + "\n"
     return code
 
 def get_generated_vanilla_code(item):
@@ -145,13 +146,6 @@ def eval_item(item, code_dir, venv_path, configuration: ModelConfiguration, with
         tqdm.write(f"Error: {e}")
         results = ["error", "error", "error"]
         item["test_results"] = results
-        cmd = [
-            "docker",
-            "rm",
-            "-f",
-            "dev_dataset_eval_item"
-        ]
-        subprocess.run(cmd)
     return results
 
 def output_path(configuration: ModelConfiguration, results):
@@ -188,8 +182,14 @@ def main(args):
             rmtree(code_dir)
 
         out_path = output_path(configuration, results)
+        result = {
+            "model": configuration.model,
+            "config": configuration.config,
+            "name": configuration.name,
+            "items": dataset.items
+        }
         with open(out_path, "w") as f:
-            f.write(json.dumps(dataset.items))
+            f.write(json.dumps(result))
 
 
 
@@ -197,10 +197,10 @@ def main(args):
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument("-a", "--action", default="all", choices=["all", "generate", "eval"])
-    parser.add_argument("-c", "--venv-cache", default="venv_cache")
-    parser.add_argument("-d", "--dataset", required=True)
-    parser.add_argument("-m", "--model-configurations", default="model_configurations")
-    parser.add_argument("-r", "--results", default="results")
+    parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
+    parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.1.0.jsonl")
+    parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
+    parser.add_argument("-r", "--results", default="dataset/results")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
     return parser.parse_args()
 
