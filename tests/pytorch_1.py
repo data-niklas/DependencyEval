@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from unittest import TestCase, main
+from unittest import TestCase, main, TextTestRunner, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
@@ -19,5 +19,6 @@ if __name__ == "__main__":
     import logging
     logging.disable(logging.CRITICAL)
     import json
-    result = main(exit=False, verbosity=0).result
+    import os
+    result = main(exit=False, verbosity=0, testRunner=TextTestRunner(verbosity=0, stream=open(os.devnull,"w"))).result
     print(json.dumps([len(result.errors), len(result.failures), result.testsRun]))
