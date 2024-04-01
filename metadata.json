@@ -4,132 +4,223 @@
         "package_dependencies": [
             "bidict==0.23.1"
         ],
-        "reason": "Support for OnDup was dropped in 0.23.0: https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14"
+        "reason": "Support for the kv parameter in the OnDup constructor was dropped in 0.23.0: https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14",
+        "kind": "modification",
+        "date": "2024-02-14",
+        "code_kind": "parameter",
+        "modification_kind": "removal",
+        "changelog": "https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14"
     },
     {
         "task_name": "bidict_2",
         "package_dependencies": [
             "bidict==0.23.1"
         ],
-        "reason": "The property inverse might be unknown enough, such that models would guess otherwise"
+        "reason": "The property inverse might be unknown enough, such that models would guess otherwise",
+        "kind": "uncommon",
+        "date": "2024-02-14",
+        "code_kind": "property",
+        "changelog": "https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14"
     },
     {
         "task_name": "dotted_1",
         "package_dependencies": [
             "dotted==0.1.8"
         ],
-        "reason": "Using a dot-separated list of indices in a string to index a list or dict is uncommon or confusing enough for models"
+        "reason": "Using a dot-separated list of indices in a string to index a list or dict is uncommon or confusing enough for models",
+        "kind": "uncommon",
+        "date": "2015-10-30",
+        "code_kind": "method",
+        "changelog": "https://github.com/carlosescri/DottedDict/blob/v0.1.8/CHANGES.txt"
     },
     {
         "task_name": "dotted_2",
         "package_dependencies": [
             "dotted==0.1.8"
         ],
-        "reason": "Using a dot separated string index for a board may be confusing enough without proper documentation"
+        "reason": "Using a dot separated string index for a board may be confusing enough without proper documentation",
+        "kind": "uncommon",
+        "date": "2015-10-30",
+        "code_kind": "method",
+        "changelog": "https://github.com/carlosescri/DottedDict/blob/v0.1.8/CHANGES.txt"
     },
     {
         "task_name": "fastapi_1",
         "package_dependencies": [
-            "fastapi==0.110.0"
+            "fastapi==0.93.0"
         ],
-        "reason": "Startup and shutdown functions have been superseded by the lifespan parameter"
+        "reason": "Startup and shutdown functions have been superseded by the lifespan parameter",
+        "kind": "modification",
+        "date": "2023-05-07",
+        "code_kind": "parameter",
+        "modification_kind": "deprecation",
+        "changelog": "https://fastapi.tiangolo.com/release-notes/#0930"
+    
     },
     {
         "task_name": "polars_1",
         "package_dependencies": [
             "polars==0.20.10"
         ],
-        "reason": "As polars is more uncommon that pandas, the model might confuse it with pandas"
+        "reason": "As polars is more uncommon that pandas, the model might confuse it with pandas",
+        "kind": "uncommon",
+        "date": "2024-02-14",
+        "code_kind": "block",
+        "changelog": "https://github.com/pola-rs/polars/releases/tag/py-0.20.10"
     },
     {
         "task_name": "pydantic_1",
         "package_dependencies": [
             "pydantic==2.6.2"
         ],
-        "reason": "The method recently replaced another deprecated method"
+        "reason": "The method model_dump recently replaced another deprecated method",
+        "kind": "modification",
+        "date": "2024-02-23",
+        "code_kind": "method",
+        "modification_kind": "deprecation",
+        "changelog": "https://github.com/pydantic/pydantic/blob/v2.6.2/HISTORY.md"
     },
     {
         "task_name": "pydantic_2",
         "package_dependencies": [
             "pydantic==2.6.2"
         ],
-        "reason": "The method recently replaced another deprecated method"
+        "reason": "The method model_dump_json recently replaced another deprecated method",
+        "kind": "modification",
+        "date": "2024-02-23",
+        "code_kind": "method",
+        "modification_kind": "deprecation",
+        "changelog": "https://github.com/pydantic/pydantic/blob/v2.6.2/HISTORY.md"
     },
     {
         "task_name": "pydantic_3",
         "package_dependencies": [
             "pydantic==2.6.2"
         ],
-        "reason": "The method recently replaced another deprecated method"
+        "reason": "The method modele_copy recently replaced another deprecated method",
+        "kind": "modification",
+        "date": "2024-02-23",
+        "code_kind": "method",
+        "modification_kind": "deprecation",
+        "changelog": "https://github.com/pydantic/pydantic/blob/v2.6.2/HISTORY.md"
     },
     {
         "task_name": "pytorch_1",
         "package_dependencies": [
-            "torch==2.2.1"
+            "torch==0.4.1"
         ],
-        "reason": "The parameter reduction is the 'proper' way to choose a reduction. Other parameters such as reduce are deprecated since a long time"
+        "reason": "The parameter reduction of CrossEntropyLoss is the 'proper' way to choose a reduction. Other parameters such as reduce are deprecated since a long time",
+        "kind": "modification",
+        "date": "2018-07-26",
+        "code_kind": "parameter",
+        "modification_kind": "deprecation",
+        "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.4.1"
     },
     {
         "task_name": "pytorch_2",
         "package_dependencies": [
-            "torch==2.2.1"
+            "torch==0.1.12"
         ],
-        "reason": "Arange should be used in favor of arange"
+        "reason": "Torch Arange should be used in favor of Python arange or torch.range",
+        "kind": "modification",
+        "date": "2017-05-03",
+        "code_kind": "function",
+        "modification_kind": "deprecation",
+        "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.1.12"
     },
     {
         "task_name": "pytorch_3",
         "package_dependencies": [
-            "torch==2.2.1"
+            "torch==1.8.0"
         ],
-        "reason": "The function was moved into another module"
+        "reason": "The function cholesky was moved into another module",
+        "kind": "modification",
+        "date": "2021-05-04",
+        "code_kind": "parameter",
+        "modification_kind": "deprecation",
+        "changelog": "https://github.com/pytorch/pytorch/releases/tag/v1.8.0"
     },
     {
         "task_name": "rich_1",
         "package_dependencies": [
             "rich==13.7.0"
         ],
-        "reason": "The method was recently added"
+        "reason": "The method was recently added",
+        "kind": "modification",
+        "date": "2023-11-15",
+        "code_kind": "method",
+        "modification_kind": "addition",
+        "changelog": "https://github.com/Textualize/rich/blob/v13.7.0/CHANGELOG.md"
     },
     {
         "task_name": "sklearn_1",
         "package_dependencies": [
-            "scikit-learn==1.4.1.post1"
+            "scikit-learn==1.2.0"
         ],
-        "reason": "The parameter was recently renamed"
+        "reason": "The parameter sparse_output was recently renamed",
+        "kind": "modification",
+        "date": "2022-12-08",
+        "code_kind": "parameter",
+        "modification_kind": "renaming",
+        "changelog": "https://scikit-learn.org/stable/whats_new/v1.2.html#id22"
     },
     {
         "task_name": "sklearn_2",
         "package_dependencies": [
             "scikit-learn==1.4.1.post1"
         ],
-        "reason": "A new output type polars was recently added"
+        "reason": "A new output type polars was recently added",
+        "kind": "modification",
+        "date": "2024-15-02",
+        "code_kind": "parameter",
+        "modification_kind": "addition",
+        "changelog": "https://scikit-learn.org/stable/whats_new/v1.4.html#dataframe-support"
     },
     {
         "task_name": "sqlalchemy_1",
         "package_dependencies": [
             "sqlalchemy==2.0.27"
         ],
-        "reason": "The method was recently renamed slightly"
+        "reason": "The method was recently renamed",
+        "kind": "modification",
+        "date": "2024-02-13",
+        "code_kind": "method",
+        "modification_kind": "renaming",
+        "changelog": "https://github.com/sqlalchemy/sqlalchemy/blob/rel_2_0_27/doc/build/changelog/changelog_20.rst"
     },
     {
         "task_name": "textual_1",
         "package_dependencies": [
-            "textual==0.42.0"
+            "textual==0.51.0"
         ],
-        "reason": "The parameter is new"
+        "reason": "The parameter tab_behavior was renamed",
+        "kind": "modification",
+        "date": "2024-02-15",
+        "code_kind": "parameter",
+        "modification_kind": "renaming",
+        "changelog": "https://github.com/Textualize/textual/blob/v0.51.0/CHANGELOG.md"
     },
     {
         "task_name": "textual_2",
         "package_dependencies": [
-            "textual==0.42.0"
+            "textual==0.52.0"
         ],
-        "reason": "The parameters is new"
+        "reason": "The field animation_level is new",
+        "kind": "modification",
+        "date": "2024-02-19",
+        "code_kind": "field",
+        "modification_kind": "addition",
+        "changelog": "https://github.com/Textualize/textual/blob/v0.52.0/CHANGELOG.md"
     },
     {
         "task_name": "tsv2py_1",
         "package_dependencies": [
             "tsv2py==0.6.0"
         ],
-        "reason": "The package is not well known and not widely used"
+        "reason": "The package is not well known and not widely used",
+        "kind": "uncommon",
+        "date": "2024-02-01",
+        "code_kind": "block",
+        "changelog": "https://github.com/hunyadi/tsv2py/releases/tag/0.6.0"
     }
 ]
