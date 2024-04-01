@@ -57,7 +57,9 @@ def beam_name(config):
 def find_column_names(items):
     names = []
     for i in items:
-        base_name = i["model"].split("/")[1].split("-")[0] + "METHOD" + config_name(i["config"]) + beam_name(i["config"])
+        name_splits = i["model"].split("/")
+        model_base_name = name_splits[1].split("-")[0] if len(name_splits) > 1 else name_splits[0]
+        base_name = model_base_name + "METHOD" + config_name(i["config"]) + beam_name(i["config"])
         if "evaluated_code_vanilla" in i["items"][0]:
             names.append(base_name.replace("METHOD", ""))
         if "evaluated_code_llm_lsp" in i["items"][0]:

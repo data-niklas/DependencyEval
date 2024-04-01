@@ -22,6 +22,13 @@ class ModelConfiguration:
     name: str
 
 @dataclass
+class ModelConfigurationGeneration:
+    model: str
+    config: Dict[str, Any]
+    name: str
+    items: List[Dict[str, Any]]
+
+@dataclass
 class Dataset:
     name: str
     items: List[Dict[str, Any]]
@@ -41,6 +48,22 @@ def read_configurations(directory):
         ))
     return configurations
 
+def read_generation_results(directory):
+    configurations = []
+    for file_name in os.listdir(directory):
+        if not file_name.endswith(".json"):
+            continue
+        file_path = path.join(directory, file_name)
+        with open(file_path, "r") as f:
+            config = json.loads(f.read())
+        configurations.append(ModelConfigurationGeneration(
+            model = config["model"],
+            config=config["config"],
+            name=config["name"],
+            items=config["items"]
+        ))
+    return configurations
+
 def load_dataset(dataset_path):
     with open(dataset_path, "r") as f:
         items = [json.loads(i) for i in f.read().splitlines()]
@@ -51,6 +74,11 @@ def load_dataset(dataset_path):
     
 def code_directory(item):
     return path.join(path.dirname(__file__), "eval_code_" + item["task_name"])
+
+def requirements(item):
+    requirements = item["package_dependencies"].copy()
+    requirements_text = "\n".join(requirements)
+    return requirements_text
 
 def create_venv(venv_cache, venv_path, llm_lsp_path, item):
     requirements = item["package_dependencies"].copy()
@@ -65,7 +93,7 @@ def create_venv(venv_cache, venv_path, llm_lsp_path, item):
         tqdm.write("Creating new venv in cache")
         builder = EnvBuilder(system_site_packages=False,
                                 clear=False,
-                                symlinks=True,
+                                symlinks=False,# Important for the Docker container!
                                 upgrade=False,
                                 with_pip=True,
                                 prompt=None,
@@ -108,12 +136,17 @@ def generate_item(item, code_dir, venv_path, configuration: ModelConfiguration, 
     return generated
 
 DOCKER_IMAGE = "python:3.8-alpine"
-def eval_item(item, code_dir, venv_path, configuration: ModelConfiguration, with_llm_lsp: bool):
+def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: bool):
     code = get_generated_llm_lsp_code(item) if with_llm_lsp else get_generated_vanilla_code(item)
+    eval_code = code + "\n" + item["test_code"]
     code_path = path.join(code_dir, "code.py")
     with open(code_path, "w") as f:
-        f.write(code)   
+        f.write(eval_code)   
     tqdm.write("Running evaluation")
+    req = requirements(item)
+    requirements_path = path.join(code_dir, "requirements.txt")
+    with open(requirements_path, "w") as f:
+        f.write(req)
     cmd = [
         "docker",
         "run",
@@ -121,22 +154,21 @@ def eval_item(item, code_dir, venv_path, configuration: ModelConfiguration, with
         "--rm",
         "--name",
         "dev_dataset_eval_item",
-        "--read-only",
         "-v",
-        f"{venv_path}:/venv",
-        "--read-only",
+        f"{requirements_path}:/tool/requirements.txt",
         "-v",
         f"{code_path}:/code/code.py",
         "-w",
         "/code",
         "--cpus", "1",
-        "--network", "none",
+        #"--network", "none", # TODO: use docker build
         DOCKER_IMAGE,
-        "/venv/bin/python",
-        "code.py"
+        "sh",
+        "-c",
+        "python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>/dev/null >/dev/null && /tool/venv/bin/python code.py"
     ]
     try:
-        output, errors = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate(timeout=60)
+        output, errors = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate(timeout=60) # TODO: switch to docker build to only timeout test
         stdout_text = output.decode()
         results = json.loads(stdout_text)
         r = ", ".join(map(str, results))
@@ -152,7 +184,42 @@ def output_path(configuration: ModelConfiguration, results):
     file_name = configuration.name + ".json"
     return path.join(results, file_name)
 
-def main(args):
+def eval(args):
+    configurations = read_generation_results(args.eval)
+    venv_cache = args.venv_cache
+    results = args.results
+    if not os.path.exists(results):
+        os.makedirs(results)
+    llm_lsp_path = args.llm_lsp_path
+
+    for configuration in tqdm(configurations):
+        tqdm.write(f"Running for {configuration.name}")
+        for item in tqdm(configuration.items):
+            code_dir = code_directory(item)
+            if path.exists(code_dir):
+                rmtree(code_dir)
+            os.mkdir(code_dir)
+
+            if "generated_code_llm_lsp" in item:
+                eval_results_with = eval_item(item, code_dir, configuration, True)
+                item["evaluated_code_llm_lsp"] = eval_results_with
+            if "generated_code_vanilla" in item:
+                eval_results_without = eval_item(item, code_dir, configuration, False)
+                item["evaluated_code_vanilla"] = eval_results_without
+            rmtree(code_dir)
+
+        out_path = output_path(configuration, results)
+        result = {
+            "model": configuration.model,
+            "config": configuration.config,
+            "name": configuration.name,
+            "items": configuration.items
+        }
+        with open(out_path, "w") as f:
+            f.write(json.dumps(result))
+
+
+def all(args):
     configurations = read_configurations(args.model_configurations)
     venv_cache = args.venv_cache
     dataset = load_dataset(args.dataset)
@@ -192,16 +259,23 @@ def main(args):
             f.write(json.dumps(result))
 
 
+def main(args):
+    if args.action == "all":
+        all(args)
+    elif args.action == "eval":
+        eval(args)
+
 
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument("-a", "--action", default="all", choices=["all", "generate", "eval"])
+    parser.add_argument("-a", "--action", default="eval", choices=["all", "generate", "eval"])
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
     parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.1.0.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
-    parser.add_argument("-r", "--results", default="dataset/results")
+    parser.add_argument("-r", "--results", default="dataset/results2")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
+    parser.add_argument("-e", "--eval", default="dataset/results")
     return parser.parse_args()
 
 if __name__ == "__main__":
