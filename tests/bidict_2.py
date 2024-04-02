@@ -1,14 +1,23 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_generated_code(self):
+    def test_functionality(self):
         values = bidict({
             "A": "B"
         })
-        values = MagicMock(values)
         out = invert_bidict_direction(values)
         assert out == values.inverse
+
+    def test_style(self):
+        values = bidict({
+            "A": "B"
+        })
+        p = PropertyMock()
+        values = MagicMock(values)
+        type(values).inverse = p
+        out = invert_bidict_direction(values)
+        p.assert_called_once_with()
         # TODO: check inverse accessed
 
 if __name__ == "__main__":

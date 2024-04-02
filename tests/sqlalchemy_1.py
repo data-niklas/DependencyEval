@@ -2,7 +2,11 @@ from unittest.mock import MagicMock, PropertyMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_generated_code(self):
+    def test_functionality(self):
+        self.test_style()
+        # TODO: how to create row
+
+    def test_style(self):
         row = MagicMock()
         _t = PropertyMock()
         t = PropertyMock()

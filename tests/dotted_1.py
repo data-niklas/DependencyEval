@@ -2,7 +2,20 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_generated_code(self):
+    def test_functionality(self):
+        user = DottedDict({
+            "name": "Bob",
+            "age": 42,
+            "email": "bob@example.com",
+            "street": {
+                "number": 80,
+                "name": "Example Str"
+            }
+        })
+        out = get_user_street_name(user)
+        assert out == user["street.name"]
+
+    def test_style(self):
         user = {
             "name": "Bob",
             "age": 42,
@@ -15,7 +28,6 @@ class Test(TestCase):
         user_mock = MagicMock()
         user_mock.__getitem__.side_effect = DottedDict(user).__getitem__
         out = get_user_street_name(user_mock)
-        assert out == "Example Str"
         assert user_mock.__getitem__.call_count == 1
         assert user_mock.__getitem__.call_args.args == ("street.name",)
 

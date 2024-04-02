@@ -3,7 +3,16 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_generated_code(self):
+    def test_functionality(self):
+        import textual.widgets
+        App = reload(textual.app).App
+        globals()["App"] = App
+        out = create_app_without_animations()
+        assert isinstance(out, App)
+        assert hasattr(out, "animation_level")
+        assert out.animation_level == "none"
+
+    def test_style(self):
         import textual.widgets
         App = reload(textual.app).App
         App = MagicMock(App)

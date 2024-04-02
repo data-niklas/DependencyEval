@@ -242,9 +242,9 @@ def all(args):
             item["generated_code_llm_lsp"] = generated_with
             generated_without = generate_item(item, code_dir, venv_path, configuration, False)
             item["generated_code_vanilla"] = generated_without
-            eval_results_with = eval_item(item, code_dir, venv_path, configuration, True)
+            eval_results_with = eval_item(item, code_dir, configuration, True)
             item["evaluated_code_llm_lsp"] = eval_results_with
-            eval_results_without = eval_item(item, code_dir, venv_path, configuration, False)
+            eval_results_without = eval_item(item, code_dir, configuration, False)
             item["evaluated_code_vanilla"] = eval_results_without
             rmtree(code_dir)
 
@@ -269,9 +269,9 @@ def main(args):
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument("-a", "--action", default="eval", choices=["all", "generate", "eval"])
+    parser.add_argument("-a", "--action", default="all", choices=["all", "generate", "eval"])
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
-    parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.1.0.jsonl")
+    parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.0.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
     parser.add_argument("-r", "--results", default="dataset/results2")
     parser.add_argument("-l", "--llm-lsp-path", default=".")

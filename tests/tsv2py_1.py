@@ -2,9 +2,8 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 import os
 
-
 class Test(TestCase):
-    def test_generated_code(self):
+    def test_functionality(self):
         people = [
             ("Bob", 42, datetime.now()),
             ("Marta", 70, datetime.now()),
@@ -27,6 +26,10 @@ class Test(TestCase):
             assert False
         finally:
             os.remove(file)
+
+    def test_style(self):
+        self.test_functionality()
+        # TODO: properly mock objects
 
 if __name__ == "__main__":
     import logging

@@ -3,9 +3,22 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_generated_code(self):
+    def test_style(self):
         import textual.widgets
         TextArea = reload(textual.widgets).TextArea
+        globals()["TextArea"] = TextArea
+        from textual.app import App
+        app = App()
+        out = create_textual_text_area_with_indent()
+        assert isinstance(out, TextArea)
+        assert hasattr(out, "tab_behavior")
+        assert out.tab_behavior == "indent"
+
+    def test_functionality(self):
+        import textual.widgets
+        TextArea = reload(textual.widgets).TextArea
+        from textual.app import App
+        app = App()
         TextArea = MagicMock(TextArea)
         globals()["TextArea"] = TextArea
         out = create_textual_text_area_with_indent()
