@@ -2,12 +2,12 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         tensor = torch.Tensor([[1,0],[0,1]])
         out = calculate_cholesky(tensor)
         assert torch.equal(out, torch.linalg.cholesky(tensor))
 
-    def test_style(self):
+    def test_approach_correctness(self):
         torch.cholesky = MagicMock(torch.cholesky)
         torch.linalg.cholesky = MagicMock(torch.linalg.cholesky)
         tensor = torch.Tensor([[1,0],[0,1]])

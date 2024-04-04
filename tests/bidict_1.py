@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         values = bidict({
             "A": "B"
         })
@@ -15,7 +15,7 @@ class Test(TestCase):
         values2.putall(items, OnDup(key=OnDupAction.DROP_OLD, val=OnDupAction.DROP_OLD))
         assert values == values2
 
-    def test_style(self):
+    def test_approach_correctness(self):
         values = bidict({
             "A": "B"
         })

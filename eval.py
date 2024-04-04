@@ -273,7 +273,7 @@ def parse_args():
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
     parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.0.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
-    parser.add_argument("-r", "--results", default="dataset/results2")
+    parser.add_argument("-r", "--results", default="dataset/results")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
     parser.add_argument("-e", "--eval", default="dataset/results")
     return parser.parse_args()

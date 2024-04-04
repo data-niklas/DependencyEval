@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         import sklearn.preprocessing
         OneHotEncoder = reload(sklearn.preprocessing).OneHotEncoder
         globals()["OneHotEncoder"] = OneHotEncoder
@@ -13,7 +13,7 @@ class Test(TestCase):
         assert "transform" in out._sklearn_output_config
         assert out._sklearn_output_config["transform"] == "polars"
 
-    def test_style(self):
+    def test_approach_correctness(self):
         import sklearn.preprocessing
         OneHotEncoder = reload(sklearn.preprocessing).OneHotEncoder
         OneHotEncoder = MagicMock(OneHotEncoder)

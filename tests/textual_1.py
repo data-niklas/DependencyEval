@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_style(self):
+    def test_approach_correctness(self):
         import textual.widgets
         TextArea = reload(textual.widgets).TextArea
         globals()["TextArea"] = TextArea
@@ -14,7 +14,7 @@ class Test(TestCase):
         assert hasattr(out, "tab_behavior")
         assert out.tab_behavior == "indent"
 
-    def test_functionality(self):
+    def test_output_correctness(self):
         import textual.widgets
         TextArea = reload(textual.widgets).TextArea
         from textual.app import App

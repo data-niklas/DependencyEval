@@ -2,13 +2,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 def startup(app: FastAPI):
-    print("Starting the FastAPI server")
+    app.state.startup = True
 
 def shutdown(app: FastAPI):
-    print("Stopping the FastAPI server")
+    app.state.shutdown = True
 
 def create_fastapi_app() -> FastAPI:
-    """Create an instance of FastAPI which calls `startup` when starting and `shutdown` when stopping"""
+    """Create a new FastAPI app which calls the lifespan functions startup and shutdown.
+
+    Returns:
+        FastAPI: New FastAPI instance
+    """    
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         startup(app)

@@ -2,12 +2,12 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         user = User(name="Bob", email="bob@example.com", age=42)
         out = convert_user_to_dict(user)
         assert out == user.model_dump()
 
-    def test_style(self):
+    def test_approach_correctness(self):
         user = User(name="Bob", email="bob@example.com", age=42)
         user_mock = MagicMock(user)
         out = convert_user_to_dict(user_mock)

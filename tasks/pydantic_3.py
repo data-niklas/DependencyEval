@@ -7,5 +7,12 @@ class User(BaseModel):
     age: int
 
 def duplicate_user(user: User) -> User:
-    """Return a copy of the user"""
+    """Duplicate the user.
+
+    Args:
+        user (User): The Pydantic user model
+
+    Returns:
+        User: Deep copy of the user
+    """    
     return user.model_copy()

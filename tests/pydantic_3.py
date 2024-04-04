@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         user = User(name="Bob", email="bob@example.com", age=42)
         out = duplicate_user(user)
         assert out == user.model_copy()

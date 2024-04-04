@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner
 import os
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         file = "__polars_1__.csv"
         with open(file, "w") as f:
             f.write("name,age\nBob,42\nMarta,70\nLukas,51\nElsa,3")
@@ -15,9 +15,9 @@ class Test(TestCase):
         finally:
             os.remove(file)
 
-    def test_style(self):
+    def test_approach_correctness(self):
         # TODO: mock file opening and other functions
-        self.test_functionality()
+        self.test_output_correctness()
 
 if __name__ == "__main__":
     import logging

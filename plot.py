@@ -88,11 +88,11 @@ def main():
             item = i["items"][j]
             if "evaluated_code_vanilla" in item:
                 results = item["evaluated_code_vanilla"]
-                t = "o" if results[0] == 0 and results[1] == 0 else ""
+                t = "+" if results[0] == 0 and results[1] == 0 else "~" if results[0] < results[2] and results[1] < results[2] else ""
                 row.append(t)
             if "evaluated_code_llm_lsp" in item:
                 results = item["evaluated_code_llm_lsp"]
-                t = "o" if results[0] == 0 and results[1] == 0 else ""
+                t = "+" if results[0] == 0 and results[1] == 0 else "~" if results[0] < results[2] and results[1] < results[2] else ""
                 row.append(t)
         text.append(row)
 

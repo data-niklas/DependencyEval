@@ -2,14 +2,14 @@ from unittest.mock import MagicMock, PropertyMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         values = bidict({
             "A": "B"
         })
         out = invert_bidict_direction(values)
         assert out == values.inverse
 
-    def test_style(self):
+    def test_approach_correctness(self):
         values = bidict({
             "A": "B"
         })

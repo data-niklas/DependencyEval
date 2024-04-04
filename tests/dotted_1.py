@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         user = DottedDict({
             "name": "Bob",
             "age": 42,
@@ -15,7 +15,7 @@ class Test(TestCase):
         out = get_user_street_name(user)
         assert out == user["street.name"]
 
-    def test_style(self):
+    def test_approach_correctness(self):
         user = {
             "name": "Bob",
             "age": 42,

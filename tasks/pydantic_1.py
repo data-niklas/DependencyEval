@@ -7,5 +7,12 @@ class User(BaseModel):
     age: int
 
 def convert_user_to_dict(user: User) -> Dict[str, Any]:
-    """Convert the given user model into a Python dictionary"""
+    """Convert the user into a Python dictionary.
+
+    Args:
+        user (User): Pydantic user model
+
+    Returns:
+        Dict[str, Any]: User attributes as a Python key value mapping
+    """    
     return user.model_dump()

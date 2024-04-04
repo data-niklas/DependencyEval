@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         import textual.widgets
         App = reload(textual.app).App
         globals()["App"] = App
@@ -12,7 +12,7 @@ class Test(TestCase):
         assert hasattr(out, "animation_level")
         assert out.animation_level == "none"
 
-    def test_style(self):
+    def test_approach_correctness(self):
         import textual.widgets
         App = reload(textual.app).App
         App = MagicMock(App)

@@ -1,7 +1,10 @@
 from dotted.collection import DottedDict
 
 def get_user_street_name(user: DottedDict) -> str:
-    """Retrieve the street name of the user. The user has the following JSON schema:
+    """Retrieve the street name of the user.
+
+    Args:
+        user (DottedDict): The user has the following JSON schema:
     {
         name: str,
         age: int,
@@ -11,5 +14,8 @@ def get_user_street_name(user: DottedDict) -> str:
             name: str
         }
     }
-    """
+
+    Returns:
+        str: Street name
+    """    
     return user["street.name"]

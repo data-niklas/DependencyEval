@@ -3,13 +3,13 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         import fastapi
         FastAPI = reload(fastapi).FastAPI
         out = create_fastapi_app()
         assert isinstance(out, FastAPI)
 
-    def test_style(self):
+    def test_approach_correctness(self):
         import fastapi
         FastAPI = reload(fastapi).FastAPI
         FastAPI = MagicMock(FastAPI)

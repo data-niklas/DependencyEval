@@ -2,12 +2,12 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         board = DottedList([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         out = get_2d_board_entry(board, "1.2")
         assert out == board["1.2"]
 
-    def test_style(self):
+    def test_approach_correctness(self):
         board = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         board_mock = MagicMock()
         board_mock.__getitem__.side_effect = DottedList(board).__getitem__

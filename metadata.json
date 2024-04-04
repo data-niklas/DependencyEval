@@ -107,7 +107,7 @@
     {
         "task_name": "pytorch_1",
         "package_dependencies": [
-            "torch==0.4.1"
+            "torch==2.2.0"
         ],
         "reason": "The parameter reduction of CrossEntropyLoss is the 'proper' way to choose a reduction. Other parameters such as reduce are deprecated since a long time",
         "kind": "modification",
@@ -119,7 +119,7 @@
     {
         "task_name": "pytorch_2",
         "package_dependencies": [
-            "torch==0.1.12"
+            "torch==2.2.0"
         ],
         "reason": "Torch Arange should be used in favor of Python arange or torch.range",
         "kind": "modification",
@@ -131,7 +131,7 @@
     {
         "task_name": "pytorch_3",
         "package_dependencies": [
-            "torch==1.8.0"
+            "torch==2.2.0"
         ],
         "reason": "The function cholesky was moved into another module",
         "kind": "modification",

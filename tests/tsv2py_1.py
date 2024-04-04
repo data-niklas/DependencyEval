@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner
 import os
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         people = [
             ("Bob", 42, datetime.now()),
             ("Marta", 70, datetime.now()),
@@ -27,8 +27,8 @@ class Test(TestCase):
         finally:
             os.remove(file)
 
-    def test_style(self):
-        self.test_functionality()
+    def test_approach_correctness(self):
+        self.test_output_correctness()
         # TODO: properly mock objects
 
 if __name__ == "__main__":

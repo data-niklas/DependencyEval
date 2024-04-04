@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         import torch.nn
         CrossEntropyLoss = reload(torch.nn).CrossEntropyLoss
         globals()["CrossEntropyLoss"] = CrossEntropyLoss
@@ -14,7 +14,7 @@ class Test(TestCase):
         except AttributeError:
             assert False
 
-    def test_style(self):
+    def test_approach_correctness(self):
         import torch.nn
         CrossEntropyLoss = reload(torch.nn).CrossEntropyLoss
         CrossEntropyLoss = MagicMock(CrossEntropyLoss)

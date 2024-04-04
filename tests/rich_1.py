@@ -2,12 +2,12 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         style = Style()
         out = clear_style(style)
         assert out == style.clear_meta_and_links()
 
-    def test_style(self):
+    def test_approach_correctness(self):
         style = Style()
         style_mock = MagicMock(style)
         out = clear_style(style_mock)

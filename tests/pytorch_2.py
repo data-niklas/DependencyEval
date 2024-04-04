@@ -2,13 +2,13 @@ from unittest.mock import MagicMock
 from unittest import TestCase, main, TextTestRunner
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         start = 11
         end = 23
         out = create_1d_tensor_in_range(start, end)
         assert torch.equal(out, torch.arange(start, end))
 
-    def test_style(self):
+    def test_approach_correctness(self):
         torch.arange = MagicMock(torch.arange)
         torch.range = MagicMock(torch.range)
         start = 11

@@ -3,7 +3,7 @@ from unittest import TestCase, main, TextTestRunner
 from importlib import reload
 
 class Test(TestCase):
-    def test_functionality(self):
+    def test_output_correctness(self):
         import sklearn.preprocessing
         OneHotEncoder = reload(sklearn.preprocessing).OneHotEncoder
         globals()["OneHotEncoder"] = OneHotEncoder
@@ -12,7 +12,7 @@ class Test(TestCase):
         assert hasattr(out, "sparse_output")
         assert out.sparse_output == False
 
-    def test_style(self):
+    def test_approach_correctness(self):
         import sklearn.preprocessing
         OneHotEncoder = reload(sklearn.preprocessing).OneHotEncoder
         OneHotEncoder = MagicMock(OneHotEncoder)
