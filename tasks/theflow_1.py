@@ -20,5 +20,14 @@ class MultiplySquareFlow(Function):
         return y
 
 def multiply_then_square(x: int, multiplication_factor: int) -> int:
+    """Multiply x by multiplication factor, then square the result.
+
+    Args:
+        x (int): Input number
+        multiplication_factor (int): Multiplication factor for x
+
+    Returns:
+        int: x times multiplication factor, then the squared result using the provided Functions
+    """
     flow = MultiplySquareFlow(square=square,multiply=MultiplyBy(factor=multiplication_factor))
     return flow(x=x)

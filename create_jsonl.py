@@ -11,7 +11,7 @@ METADATA_FILE = path.join(path.dirname(__file__), "metadata.json")
 METADATA = json.load(open(METADATA_FILE, "r"))
 
 NAME = "PackageEval"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 
 OUT = path.join(path.dirname(__file__), f"DependencyEval_{VERSION}.jsonl")
 
