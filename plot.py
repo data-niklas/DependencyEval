@@ -44,7 +44,7 @@ def cmp(a, b):
 
 def config_name(config):
     if "do_sample" in config and config["do_sample"] == True:
-        return " °" + "{:.2f}".format(config["temperature"])
+        return " °"# + "{:.2f}".format(config["temperature"])
     else:
         return ""
 
@@ -88,11 +88,11 @@ def main():
             item = i["items"][j]
             if "evaluated_code_vanilla" in item:
                 results = item["evaluated_code_vanilla"]
-                t = "+" if results[0] == 0 and results[1] == 0 else "~" if results[0] < results[2] and results[1] < results[2] else ""
+                t = "+" if results[0] == 0 and results[1] == 0 else "~" if results[0] < results[2] and results[1] < results[2] else "e" if results[0] == "error" else ""
                 row.append(t)
             if "evaluated_code_llm_lsp" in item:
                 results = item["evaluated_code_llm_lsp"]
-                t = "+" if results[0] == 0 and results[1] == 0 else "~" if results[0] < results[2] and results[1] < results[2] else ""
+                t = "+" if results[0] == 0 and results[1] == 0 else "~" if results[0] < results[2] and results[1] < results[2] else "e" if results[0] == "error" else ""
                 row.append(t)
         text.append(row)
 
