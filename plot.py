@@ -4,6 +4,7 @@ from os import path
 import os
 import json
 from functools import cmp_to_key
+import openpyxl
 
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable
@@ -15,7 +16,9 @@ class TableApp(App):
         self.columns = columns
 
     def compose(self) -> ComposeResult:
-        yield DataTable()
+        dt = DataTable()
+        dt.styles.height = "1fr"
+        yield dt
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
@@ -98,6 +101,12 @@ def main():
 
     for row, name in zip(text, row_names):
         row.insert(0, name)
+    wb = openpyxl.Workbook()
+    awb = wb.active
+    awb.append([""] + column_names)
+    for row in text:
+        awb.append(row)
+    wb.save("plot.xlsx")
     app = TableApp([""] + column_names, text)
     app.run()
     #plt.table(cellText=text,rowLabels=row_names,colLabels=column_names, loc="center")
