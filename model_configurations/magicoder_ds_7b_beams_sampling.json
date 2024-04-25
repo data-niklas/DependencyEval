@@ -6,7 +6,7 @@
         "top_k": 50,
         "top_p": 0.95,
         "num_return_sequences": 1,
-        "max_new_tokens": 2048,
+        "max_new_tokens": 5048,
         "repetition_penalty": 1.18,
         "max_time": 120.0
     }

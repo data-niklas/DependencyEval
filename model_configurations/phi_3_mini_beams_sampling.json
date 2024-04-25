@@ -1,5 +1,5 @@
 {
-    "model": "m-a-p/OpenCodeInterpreter-DS-6.7B",
+    "model": "microsoft/Phi-3-mini-4k-instruct",
     "config": {
         "num_beams": 2,
         "do_sample": true,
@@ -7,7 +7,7 @@
         "top_p": 0.95,
         "num_return_sequences": 1,
         "max_new_tokens": 5048,
-        "repetition_penalty": 1.18,
+        "repetition_penalty": 1.3,
         "max_time": 120.0
     }
 }
