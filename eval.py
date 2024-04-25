@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 from hashlib import sha256
 from logzero import logger
+from io import BytesIO
+import docker
 EVAL_PROMPT = path.join(path.dirname(__file__), "eval_prompt.py")
 
 @dataclass
@@ -135,7 +137,13 @@ def generate_item(item, code_dir, venv_path, configuration: ModelConfiguration, 
     logger.debug(generated)
     return generated
 
-DOCKER_IMAGE = "python:3.8-alpine"
+# Versions larger > 3.7 are not supported by all packages
+# Alpine images do not support torch out of the box
+DOCKER_IMAGE = "python:3.7-slim-bullseye"
+
+def image(python_version):
+    return DOCKER_IMAGE.replace("3.7", python_version)
+
 def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: bool):
     code = get_generated_llm_lsp_code(item) if with_llm_lsp else get_generated_vanilla_code(item)
     eval_code = code + "\n" + item["test_code"]
@@ -162,14 +170,18 @@ def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: b
         "/code",
         "--cpus", "1",
         #"--network", "none", # TODO: use docker build
-        DOCKER_IMAGE,
+        image(item["python-version"]),
         "sh",
         "-c",
-        "python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>/dev/null >/dev/null && /tool/venv/bin/python code.py"
+        "python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>error.log >/dev/null && /tool/venv/bin/python code.py || cat error.log"
     ]
     try:
-        output, errors = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate(timeout=60) # TODO: switch to docker build to only timeout test
+        # 2m timeout, as pip install of pytorch takes 80s alone
+        output, errors = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate(timeout=120) # TODO: switch to docker build to only timeout test
         stdout_text = output.decode()
+        stdout_text = stdout_text.strip()
+        if stdout_text.endswith("]") and "[" in stdout_text:
+            stdout_text = stdout_text[stdout_text.index("["):]
         results = json.loads(stdout_text)
         r = ", ".join(map(str, results))
         tqdm.write(f"Test results: {r}")
@@ -178,6 +190,8 @@ def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: b
         tqdm.write(f"Error: {e}")
         results = ["error", "error", "error"]
         item["test_results"] = results
+    finally:
+        subprocess.Popen(["docker", "rm", "dev_dataset_eval_item", "-f"]).communicate()
     return results
 
 def output_path(configuration: ModelConfiguration, results):
@@ -271,11 +285,11 @@ def parse_args():
     parser = ArgumentParser()
     parser.add_argument("-a", "--action", default="all", choices=["all", "generate", "eval"])
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
-    parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.0.jsonl")
+    parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.1.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
-    parser.add_argument("-r", "--results", default="dataset/results")
+    parser.add_argument("-r", "--results", default="dataset/results_phi")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
-    parser.add_argument("-e", "--eval", default="dataset/results")
+    parser.add_argument("-e", "--eval", default="dataset/results_fixed_repetition")
     return parser.parse_args()
 
 if __name__ == "__main__":

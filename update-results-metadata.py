@@ -6,6 +6,15 @@ def main(args):
     with open(args.metadata, "r") as f:
         items = json.loads(f.read())
         metadata = {item["task_name"]: item for item in items}
+    # with open(args.results, "r") as f:
+    #     t = [json.loads(line) for line in f.read().splitlines()]
+    # for item in t:
+    #     mi = metadata[item["task_name"]]
+    #     for k, v in mi.items():
+    #         item[k] = v
+    # with open(args.results, "w") as f:
+    #     f.write("\n".join([json.dumps(i) for i in t]))
+
     for p in listdir(args.results):
         p = path.join(args.results, p)
         with open(p, "r") as f:
