@@ -2,7 +2,7 @@ import logging
 
 logging.disable(logging.INFO)
 import transformers
-
+import traceback
 transformers.logging.set_verbosity_error()
 
 import asyncio
@@ -32,8 +32,7 @@ async def main():
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         trust_remote_code=True,
-        attn_implementation="eager",
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
         device_map="cuda",
     )
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -46,7 +45,7 @@ async def main():
     try:
         generated_code = await generator.complete(code, code_dir)
     except Exception as e:
-        generated_code = "Error: " + str(e)
+        generated_code = traceback.format_exc()
     print(generated_code)
 
 
@@ -54,6 +53,6 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except CancelledError as e:
-        print("Error: " + str(e))
+        traceback.print_exc()
     except Exception as e:
-        print("Error: " + str(e))
+        traceback.print_exc()

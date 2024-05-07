@@ -105,6 +105,8 @@ def create_venv(venv_cache, venv_path, llm_lsp_path, item):
         requirements_file = "__requirements__.txt"
         with open(requirements_file, "w") as f:
             f.write(requirements_text)
+        cmd = [context.env_exec_cmd, '-m', 'pip', 'install', 'packaging', 'wheel']
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         cmd = [context.env_exec_cmd, '-m', 'pip', 'install', '-r', requirements_file]
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         os.remove(requirements_file)
@@ -287,7 +289,7 @@ def parse_args():
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
     parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.1.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
-    parser.add_argument("-r", "--results", default="dataset/results_phi")
+    parser.add_argument("-r", "--results", default="dataset/results/2024-05-06_no_completion")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
     parser.add_argument("-e", "--eval", default="dataset/results_fixed_repetition")
     return parser.parse_args()
