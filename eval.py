@@ -167,7 +167,7 @@ def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: b
         "-v",
         f"{requirements_path}:/tool/requirements.txt",
         "-v",
-        f"{code_path}:/code/code.py",
+        f"{code_path}:/code/llm_lsp_code.py",
         "-w",
         "/code",
         "--cpus", "1",
@@ -175,7 +175,7 @@ def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: b
         image(item["python-version"]),
         "sh",
         "-c",
-        "python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>error.log >/dev/null && /tool/venv/bin/python code.py || cat error.log"
+        "python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>error.log >/dev/null && /tool/venv/bin/python llm_lsp_code.py || cat error.log"
     ]
     try:
         # 2m timeout, as pip install of pytorch takes 80s alone
@@ -289,9 +289,9 @@ def parse_args():
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
     parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.1.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
-    parser.add_argument("-r", "--results", default="dataset/results/2024-05-06_no_completion")
+    parser.add_argument("-r", "--results", default="dataset/results/2024-05-16_improved_signatures")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
-    parser.add_argument("-e", "--eval", default="dataset/results_fixed_repetition")
+    parser.add_argument("-e", "--eval", default="dataset/results/2024-05-16_improved_signatures")
     return parser.parse_args()
 
 if __name__ == "__main__":
