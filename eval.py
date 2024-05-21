@@ -289,9 +289,9 @@ def parse_args():
     parser.add_argument("-c", "--venv-cache", default="dataset/venv_cache")
     parser.add_argument("-d", "--dataset", default="dataset/DependencyEval_0.2.1.jsonl")
     parser.add_argument("-m", "--model-configurations", default="dataset/model_configurations")
-    parser.add_argument("-r", "--results", default="dataset/results/2024-05-16_improved_signatures")
+    parser.add_argument("-r", "--results", default="dataset/results/2024-05-20")
     parser.add_argument("-l", "--llm-lsp-path", default=".")
-    parser.add_argument("-e", "--eval", default="dataset/results/2024-05-16_improved_signatures")
+    parser.add_argument("-e", "--eval", default="dataset/results/2024-05-20")
     return parser.parse_args()
 
 if __name__ == "__main__":
