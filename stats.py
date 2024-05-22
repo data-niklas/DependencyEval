@@ -1,10 +1,12 @@
-#from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 import sys
 from os import path
 import os
 import json
 from functools import cmp_to_key
 from collections import defaultdict
+from sankeyflow import Sankey
+from matplotlib import pyplot as plt
 
 
 def lt_config(a, b):
@@ -22,14 +24,15 @@ def cmp(a, b):
         return -1 if a["model"] < b["model"] else 1
     if a["config"] != b["config"]:
         return -1 if lt_config(a["config"], b["config"]) else 1
-    return -1 if a["method"] < b["method"] else 1   
+    return -1 if a["method"] < b["method"] else 1
 
 
 def config_name(config):
     if "do_sample" in config and config["do_sample"] == True:
-        return " °"# + "{:.2f}".format(config["temperature"])
+        return " °"  # + "{:.2f}".format(config["temperature"])
     else:
         return ""
+
 
 def beam_name(config):
     if "num_beams" in config:
@@ -37,17 +40,26 @@ def beam_name(config):
     else:
         return ""
 
+
 def find_column_names(items):
     names = []
     for i in items:
         name_splits = i["model"].split("/")
-        model_base_name = name_splits[1].split("-")[0] if len(name_splits) > 1 else name_splits[0]
-        base_name = model_base_name + "METHOD" + config_name(i["config"]) + beam_name(i["config"])
+        model_base_name = (
+            name_splits[1].split("-")[0] if len(name_splits) > 1 else name_splits[0]
+        )
+        base_name = (
+            model_base_name
+            + "METHOD"
+            + config_name(i["config"])
+            + beam_name(i["config"])
+        )
         if "evaluated_code_vanilla" in i["items"][0]:
             names.append(base_name.replace("METHOD", ""))
         if "evaluated_code_llm_lsp" in i["items"][0]:
             names.append(base_name.replace("METHOD", " +lsp"))
     return names
+
 
 def map_results(results):
     r = defaultdict(int)
@@ -57,7 +69,10 @@ def map_results(results):
         r["partial"] = 1
     elif results[0] == "error":
         r["error"] = 1
+    else:
+        r["none"] = 0
     return r
+
 
 def main():
     results_dir = sys.argv[1]
@@ -68,13 +83,14 @@ def main():
         with open(path.join(results_dir, name), "r") as f:
             item = json.loads(f.read())
             items.append(item)
-    
+
     items.sort(key=cmp_to_key(cmp))
     for item in items:
         item["items"].sort(key=lambda x: x["task_name"])
     row_names = [i["task_name"] for i in items[0]["items"]]
     column_names = find_column_names(items)
     rows = []
+    flows = defaultdict(int)
     for j in range(len(row_names)):
         row = []
         for i in items:
@@ -88,6 +104,15 @@ def main():
                 t = map_results(results)
                 t["lsp"] = 1
                 row.append(t)
+            if "evaluated_code_vanilla" in item and "evaluated_code_llm_lsp" in item:
+                f_key = (
+                    list(map_results(item["evaluated_code_vanilla"]).keys())[0] + "_in"
+                )
+                to_key = (
+                    list(map_results(item["evaluated_code_llm_lsp"]).keys())[0] + "_out"
+                )
+                flows[(f_key, to_key)] += 1
+
         rows.append(row)
 
     total = len(items) * len(row_names) * 2
@@ -134,6 +159,25 @@ def main():
     print("{0:0.2f}".format(partial_p))
     print("{0:0.2f}".format(none_p))
     print("{0:0.2f}".format(error_p))
+
+    labels = ["full", "partial", "none", "error"]
+    node_values = defaultdict(int)
+    for (k, v) in flows.items():
+        node_values[k[0]] += v
+        node_values[k[1]] += v
+    nodes = [
+        [(l + "_in", node_values[l + "_in"], {"label": l}) for l in labels],
+        [(l + "_out", node_values[l + "_out"], {"label": l}) for l in labels]
+    ]
+    plt.figure(figsize=(12, 8), dpi=144)
+    s = Sankey(
+        flows=[key + (value,) for (key, value) in flows.items()],
+        nodes=nodes,
+        cmap=plt.cm.Pastel1,
+        flow_color_mode="source",
+    )
+    s.draw()
+    plt.savefig("sankey.png")
 
 
 if __name__ == "__main__":
