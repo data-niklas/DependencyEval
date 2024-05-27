@@ -76,9 +76,14 @@ def map_results(results):
 
 def main():
     results_dir = sys.argv[1]
+    if len(sys.argv) > 2:
+        fi = lambda x: "codellama" in x
+    else:
+        fi = lambda x: True
     items = []
     for name in os.listdir(results_dir):
-        if not name.endswith(".json"):
+        print(name)
+        if not name.endswith(".json") or not fi(name):
             continue
         with open(path.join(results_dir, name), "r") as f:
             item = json.loads(f.read())
