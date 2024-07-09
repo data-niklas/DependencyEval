@@ -172,7 +172,7 @@ def eval_item(item, code_dir, configuration: ModelConfiguration, with_llm_lsp: b
         "/code",
         "--cpus", "1",
         #"--network", "none", # TODO: use docker build
-        image(item["python-version"]),
+        image(item["python_version"]),
         "sh",
         "-c",
         "python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>error.log >/dev/null && /tool/venv/bin/python llm_lsp_code.py || cat error.log"
