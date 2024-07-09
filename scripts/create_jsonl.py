@@ -5,15 +5,18 @@ from logzero import logger
 import json
 import sys
 
-SOLUTIONS_DIR = path.join(path.dirname(__file__), "tasks")
-TESTS_DIR = path.join(path.dirname(__file__), "tests")
-METADATA_FILE = path.join(path.dirname(__file__), "metadata.json")
+SCRIPTS_DIR = path.dirname(__file__)
+DATA_DIR = path.join(path.dirname(SCRIPTS_DIR), "data")
+SOLUTIONS_DIR = path.join(DATA_DIR, "tasks")
+TESTS_DIR = path.join(DATA_DIR, "tests")
+METADATA_FILE = path.join(DATA_DIR, "metadata.json")
 METADATA = json.load(open(METADATA_FILE, "r"))
+DIST_DIR = path.join(DATA_DIR, "dist")
 
 NAME = "DependencyEval"
 VERSION = "0.2.1"
 
-OUT = path.join(path.dirname(__file__), f"DependencyEval_{VERSION}.jsonl")
+OUT = path.join(DIST_DIR, f"DependencyEval_{VERSION}.jsonl")
 
 LAST_FUNCTION_DEF_RE = re.compile(r"\ndef .+\(.*\).*:\n", re.MULTILINE)
 IMPORT_RE = re.compile(r"((^|\n)from (.+) import (.+))|((^|\n)import (.+))", re.MULTILINE)
