@@ -174,7 +174,7 @@
         "kind": "modification",
         "date": "2022-12-08",
         "code_kind": "parameter",
-        "modification_kind": "renaming",
+        "modification_kind": "rename",
         "changelog": "https://scikit-learn.org/stable/whats_new/v1.2.html#id22",
         "python_version": "3.9"
     },
@@ -200,7 +200,7 @@
         "kind": "modification",
         "date": "2024-02-13",
         "code_kind": "method",
-        "modification_kind": "renaming",
+        "modification_kind": "rename",
         "changelog": "https://github.com/sqlalchemy/sqlalchemy/blob/rel_2_0_27/doc/build/changelog/changelog_20.rst",
         "python_version": "3.8"
     },
@@ -213,7 +213,7 @@
         "kind": "modification",
         "date": "2024-02-15",
         "code_kind": "parameter",
-        "modification_kind": "renaming",
+        "modification_kind": "rename",
         "changelog": "https://github.com/Textualize/textual/blob/v0.51.0/CHANGELOG.md",
         "python_version": "3.8"
     },

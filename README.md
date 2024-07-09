@@ -19,7 +19,8 @@ JSONL file where each line contains the following JSON schema:
 	"date": "%Y-%m-%d",
 	"code_kind": "{code_kind}",
 	"modification_kind": "{modification_kind}",
-	"changelog": "{url}"
+	"changelog": "{url}",
+	"python_version": "{string}"
 }
 ```
 
@@ -29,7 +30,6 @@ May be one of the following values:
 
 - `modification`: The code snippet is rarely used as it was changed recently
 - `uncommon`: The code snippet is assumed to be rarely used in general
-
 
 ## Code kind
 
@@ -48,4 +48,4 @@ May be one of the following values:
 - `addition`: Only addition of code
 - `removal`: Only removal of code
 - `deprecation`: Update of the code where the old snippet is available, but marked as deprecated
-- `renaming`
+- `rename`
