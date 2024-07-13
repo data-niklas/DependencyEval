@@ -1,5 +1,6 @@
+from unittest import TestCase, TextTestRunner, main
 from unittest.mock import MagicMock
-from unittest import TestCase, main, TextTestRunner, TextTestRunner
+
 
 class Test(TestCase):
     def test_output_correctness(self):

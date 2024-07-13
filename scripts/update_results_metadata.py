@@ -1,6 +1,7 @@
-from argparse import ArgumentParser
 import json
+from argparse import ArgumentParser
 from os import listdir, path
+
 
 def main(args):
     with open(args.metadata, "r") as f:
@@ -26,11 +27,13 @@ def main(args):
         with open(p, "w") as f:
             f.write(json.dumps(item))
 
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument("-r", "--results", default="dataset/results")
     parser.add_argument("-m", "--metadata")
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     main(parse_args())

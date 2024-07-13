@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
 
 def startup(app: FastAPI):
     app.state.startup = True

@@ -1,6 +1,7 @@
-from unittest.mock import MagicMock, PropertyMock
-from unittest import TestCase, main, TextTestRunner
 from datetime import timedelta
+from unittest import TestCase, TextTestRunner, main
+from unittest.mock import MagicMock, PropertyMock
+
 
 class Test(TestCase):
     def test_output_correctness(self):

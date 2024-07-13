@@ -1,5 +1,6 @@
 from theflow import Function
 
+
 def square(x: int) -> int:
     return x*x
 

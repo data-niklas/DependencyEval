@@ -1,21 +1,20 @@
-import sys
+import asyncio
 import json
-from os import path
 import os
 import subprocess
-from venv import EnvBuilder
-from shutil import rmtree
-from tqdm import tqdm
-from clonevirtualenv import clone_virtualenv
-import sys
-from argparse import ArgumentParser, Action
+from argparse import ArgumentParser
 from dataclasses import dataclass
-from typing import Any, Dict, List
 from hashlib import sha256
+from os import path
+from shutil import rmtree
+from typing import Any, Dict, List
+from venv import EnvBuilder
+
+from clonevirtualenv import clone_virtualenv
 from logzero import logger
-import asyncio
-from pygls.lsp.client import BaseLanguageClient
 from lsprotocol.types import *
+from pygls.lsp.client import BaseLanguageClient
+from tqdm import tqdm
 
 EVAL_PROMPT = path.join(path.dirname(__file__), "eval_prompt.py")
 

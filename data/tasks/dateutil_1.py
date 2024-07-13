@@ -1,5 +1,7 @@
 from datetime import datetime
+
 import dateutil
+
 
 def current_datetime_in_local_timezone() -> datetime:
     """Return the current date and time in the local time zone.

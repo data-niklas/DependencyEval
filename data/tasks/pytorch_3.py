@@ -1,5 +1,6 @@
 import torch
 
+
 def calculate_cholesky(input: torch.Tensor) -> torch.Tensor:
     """Calculate the Cholesky decomposition.
 

@@ -1,5 +1,7 @@
 from typing import List
+
 import polars as pl
+
 
 def lazy_filter_old_users(csv_file_path: str) -> List[str]:
     """Lazily return a list of all user names, which are older than 50. The name column is `name`, the age column is `age`.

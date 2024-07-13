@@ -1,5 +1,5 @@
-hashlib
 virtualenv-clone
 openpyxl
 sankeyflow
 matplotlib
+click

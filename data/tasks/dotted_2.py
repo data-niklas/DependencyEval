@@ -1,5 +1,7 @@
 from typing import Any
+
 from dotted.collection import DottedList
+
 
 def get_2d_board_entry(board: DottedList, index: str) -> Any:
     """Retrieve the value in the 2d board at the given index.

@@ -2,3 +2,4 @@ venv_cache
 venv
 copilot-node-server
 logs/*.log
+*.egg-info

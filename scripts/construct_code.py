@@ -1,22 +1,32 @@
+import json
+import os
 from argparse import ArgumentParser
 from os import path
-import os
-import json
 
 INDENT = "    "
+
 
 def get_completion_code(item):
     code = "\n".join(item["import_statements"]) + "\n\n"
     if item["context"] != "":
         code += item["context"] + "\n\n"
-    code += item["function_signature"] + "\n" + INDENT + item["function_documentation"] + "\n"
+    code += (
+        item["function_signature"]
+        + "\n"
+        + INDENT
+        + item["function_documentation"]
+        + "\n"
+    )
     return code
+
 
 def get_generated_vanilla_code(item):
     return get_completion_code(item) + item["generated_code_vanilla"]
 
+
 def get_generated_llm_lsp_code(item):
     return get_completion_code(item) + item["generated_code_llm_lsp"]
+
 
 def main(args):
     if not path.exists(args.directory):
@@ -35,11 +45,13 @@ def main(args):
             with open(item_path, "w") as f:
                 f.write(get_generated_llm_lsp_code(item))
 
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument("-f", "--file")
     parser.add_argument("-d", "--directory")
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     main(parse_args())

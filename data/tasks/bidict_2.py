@@ -1,5 +1,6 @@
 from bidict import bidict
 
+
 def invert_bidict_direction(values: bidict) -> bidict:
     """Return the inverse of the given bidirectional mapping instance.
 

@@ -1,6 +1,8 @@
-from typing import List, Tuple, Any
 from datetime import datetime
+from typing import Any, List, Tuple
+
 from tsv.helper import Parser
+
 
 def parse_tsv_file(filename: str) -> List[Tuple[Any, ...]]:
     """The file at filepath contains entries in the tsv format. Parse the file into a Python list of tuples.

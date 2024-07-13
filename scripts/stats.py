@@ -1,12 +1,13 @@
 # from matplotlib import pyplot as plt
-import sys
-from os import path
-import os
 import json
-from functools import cmp_to_key
+import os
+import sys
 from collections import defaultdict
-from sankeyflow import Sankey
+from functools import cmp_to_key
+from os import path
+
 from matplotlib import pyplot as plt
+from sankeyflow import Sankey
 
 
 def lt_config(a, b):
@@ -167,12 +168,12 @@ def main():
 
     labels = ["full", "partial", "none", "error"]
     node_values = defaultdict(int)
-    for (k, v) in flows.items():
+    for k, v in flows.items():
         node_values[k[0]] += v
         node_values[k[1]] += v
     nodes = [
         [(l + "_in", node_values[l + "_in"], {"label": l}) for l in labels],
-        [(l + "_out", node_values[l + "_out"], {"label": l}) for l in labels]
+        [(l + "_out", node_values[l + "_out"], {"label": l}) for l in labels],
     ]
     plt.figure(figsize=(12, 8), dpi=144)
     s = Sankey(
