@@ -3,6 +3,7 @@ from datetime import datetime
 from os import path
 from shutil import rmtree
 from typing import Dict, Any
+import json
 
 import click
 from tqdm import tqdm
@@ -18,6 +19,10 @@ from dependency_eval.loader import (
 from dependency_eval.loop import run_loop
 from dependency_eval.models import GlobalArgs, LspGenerationConfig, ModelConfiguration
 from dependency_eval.venv_cache import get_venv_for_item
+
+def output_path(configuration: ModelConfiguration, results):
+    file_name = configuration.name + ".json"
+    return path.join(results, file_name)
 
 PROJECT_BASE_PATH = path.dirname(path.dirname(__file__))
 DATASET_DIST_PATH = path.join(PROJECT_BASE_PATH, "data", "dist")

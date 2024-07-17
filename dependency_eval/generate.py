@@ -48,9 +48,12 @@ def run_neural_code_completion(
     output, error = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()
     generated = output.decode()
     logger.debug(generated)
-    with open(LOG_FILE, "r") as f:
-        log_content = f.read()
-    os.remove(LOG_FILE)
+    if path.exists(LOG_FILE):
+        with open(LOG_FILE, "r") as f:
+            log_content = f.read()
+        os.remove(LOG_FILE)
+    else:
+        log_content = ""
     os.remove(code_file)
     return generated, log_content
 
