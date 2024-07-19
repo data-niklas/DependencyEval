@@ -1,9 +1,9 @@
+import os
 import subprocess
 from hashlib import sha256
 from os import path
-import os
-from venv import EnvBuilder
 from typing import Optional
+from venv import EnvBuilder
 
 from clonevirtualenv import clone_virtualenv
 from tqdm import tqdm
@@ -38,7 +38,9 @@ def create_venv(venv_directory: str, requirements: str):
     os.remove(REQUIREMENTS_FILE)
 
 
-def get_venv(venv_cache_directory: str, venv_directory: Optional[str], requirements: str):
+def get_venv(
+    venv_cache_directory: str, venv_directory: Optional[str], requirements: str
+):
     requirement_items = requirements.split("\n")
     requirement_items.sort()
     requirements = "\n".join(requirement_items)

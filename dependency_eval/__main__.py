@@ -1,14 +1,15 @@
+import json
 import os
 from datetime import datetime
 from os import path
 from shutil import rmtree
-from typing import Dict, Any
-import json
+from typing import Any, Dict
 
 import click
 from tqdm import tqdm
 
 from dependency_eval import VERSION
+from dependency_eval.build import build_dataset, replace_version, update_version
 from dependency_eval.dataset_utils import get_code_directory
 from dependency_eval.eval import eval_item
 from dependency_eval.generate import run_neural_code_completion
@@ -17,10 +18,12 @@ from dependency_eval.loader import (
     read_generation_results,
     read_model_configurations,
 )
+from dependency_eval.table import export_table, show_table
 from dependency_eval.loop import run_loop
 from dependency_eval.models import LspGenerationConfig, ModelConfiguration
+from dependency_eval.plots import plot_stats
+from dependency_eval.stats import show_stats
 from dependency_eval.venv_cache import get_venv_for_item
-from dependency_eval.build import build_dataset, replace_version, update_version
 
 
 def output_path(configuration: ModelConfiguration, results):
@@ -64,6 +67,34 @@ def build(args, update_type):
     replace_version(new_version)
     build_dataset(DATASET_PATH, new_version)
 
+
+@cli.command()
+@click.option("-r", "--evaluation-results-directory", required=True)
+@click.pass_obj
+def evaluation_stats(args, evaluation_results_directory: str):
+    show_stats(evaluation_results_directory)
+
+
+@cli.command()
+@click.option("-r", "--evaluation-results-directory", required=True)
+@click.option("-p", "--plot-file", default="sankey.png")
+@click.pass_obj
+def plot_evaluation(args, evaluation_results_directory: str, plot_file: str):
+    plot_stats(evaluation_results_directory, plot_file)
+
+
+@cli.command()
+@click.option("-r", "--evaluation-results-directory", required=True)
+@click.pass_obj
+def show_evaluation_table(args, evaluation_results_directory: str):
+    show_table(evaluation_results_directory)
+
+@cli.command()
+@click.option("-r", "--evaluation-results-directory", required=True)
+@click.option("-e", "--excel-file", default="table.xsls")
+@click.pass_obj
+def export_evaluation_table(args, evaluation_results_directory: str, excel_file: str):
+    export_table(evaluation_results_directory, excel_file)
 
 @cli.command()
 @click.option("--llm-lsp-directory", required=True)

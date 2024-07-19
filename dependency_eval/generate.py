@@ -1,12 +1,12 @@
 import json
+import os
 import subprocess
 from dataclasses import asdict
-from typing import Any, Dict
 from os import path
-import os
+from typing import Any, Dict
 
-from tqdm import tqdm
 from logzero import logger
+from tqdm import tqdm
 
 from dependency_eval.constants import EVAL_PROMPT_FILE, LOG_FILE
 from dependency_eval.dataset_utils import get_completion_code

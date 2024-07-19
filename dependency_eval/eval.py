@@ -1,8 +1,8 @@
+import json
 import os
 import subprocess
 from os import path
 from typing import Any, Dict, List
-import json
 
 from tqdm import tqdm
 
@@ -81,11 +81,7 @@ def eval_item(
         f.write(requirements)
 
     tqdm.write("Running evaluation")
-    cmd = get_docker_cmd(
-        item,
-        code_file,
-        requirements_file
-    )
+    cmd = get_docker_cmd(item, code_file, requirements_file)
     try:
         # 2m timeout, as pip install of pytorch takes 80s alone
         output, errors = subprocess.Popen(

@@ -6,9 +6,6 @@ from collections import defaultdict
 from functools import cmp_to_key
 from os import path
 
-from matplotlib import pyplot as plt
-from sankeyflow import Sankey
-
 
 def lt_config(a, b):
     if "do_sample" not in a:
@@ -75,18 +72,12 @@ def map_results(results):
     return r
 
 
-def main():
-    results_dir = sys.argv[1]
-    if len(sys.argv) > 2:
-        fi = lambda x: "codellama" in x
-    else:
-        fi = lambda x: True
+def get_stats(evaluation_results_directory: str):
     items = []
-    for name in os.listdir(results_dir):
-        print(name)
-        if not name.endswith(".json") or not fi(name):
+    for name in os.listdir(evaluation_results_directory):
+        if not name.endswith(".json"):
             continue
-        with open(path.join(results_dir, name), "r") as f:
+        with open(path.join(evaluation_results_directory, name), "r") as f:
             item = json.loads(f.read())
             items.append(item)
 
@@ -120,7 +111,11 @@ def main():
                 flows[(f_key, to_key)] += 1
 
         rows.append(row)
+    return items, rows, row_names, flows
 
+
+def show_stats(evaluation_results_directory: str):
+    items, rows, row_names, _ = get_stats(evaluation_results_directory)
     total = len(items) * len(row_names) * 2
     full_total = sum([r["full"] for row in rows for r in row])
     partial_total = sum([r["partial"] for row in rows for r in row])
@@ -165,26 +160,3 @@ def main():
     print("{0:0.2f}".format(partial_p))
     print("{0:0.2f}".format(none_p))
     print("{0:0.2f}".format(error_p))
-
-    labels = ["full", "partial", "none", "error"]
-    node_values = defaultdict(int)
-    for k, v in flows.items():
-        node_values[k[0]] += v
-        node_values[k[1]] += v
-    nodes = [
-        [(l + "_in", node_values[l + "_in"], {"label": l}) for l in labels],
-        [(l + "_out", node_values[l + "_out"], {"label": l}) for l in labels],
-    ]
-    plt.figure(figsize=(12, 8), dpi=144)
-    s = Sankey(
-        flows=[key + (value,) for (key, value) in flows.items()],
-        nodes=nodes,
-        cmap=plt.cm.Pastel1,
-        flow_color_mode="source",
-    )
-    s.draw()
-    plt.savefig("sankey.png")
-
-
-if __name__ == "__main__":
-    main()

@@ -79,15 +79,12 @@ def find_column_names(items):
         if "evaluated_code_llm_lsp" in i["items"][0]:
             names.append(base_name.replace("METHOD", " +lsp"))
     return names
-
-
-def main():
-    results_dir = sys.argv[1]
+def get_table_items(evaluation_results_directory: str):
     items = []
-    for name in os.listdir(results_dir):
+    for name in os.listdir(evaluation_results_directory):
         if not name.endswith(".json"):
             continue
-        with open(path.join(results_dir, name), "r") as f:
+        with open(path.join(evaluation_results_directory, name), "r") as f:
             item = json.loads(f.read())
             items.append(item)
 
@@ -129,17 +126,19 @@ def main():
 
     for row, name in zip(text, row_names):
         row.insert(0, name)
+    return column_names, text
+
+
+def show_table(evaluation_results_directory: str):
+    column_names, text = get_table_items(evaluation_results_directory)
+    app = TableApp([""] + column_names, text)
+    app.run()
+
+def export_table(evaluation_results_directory: str, excel_file: str):
+    column_names, text = get_table_items(evaluation_results_directory)
     wb = openpyxl.Workbook()
     awb = wb.active
     awb.append([""] + column_names)
     for row in text:
         awb.append(row)
-    wb.save("plot.xlsx")
-    app = TableApp([""] + column_names, text)
-    app.run()
-    # plt.table(cellText=text,rowLabels=row_names,colLabels=column_names, loc="center")
-    # plt.savefig("plot.png")
-
-
-if __name__ == "__main__":
-    main()
+    wb.save(excel_file)

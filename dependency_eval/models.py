@@ -1,6 +1,5 @@
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
-
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -24,7 +23,7 @@ class LspGenerationConfig:
     boundary_processor: bool = True
     lsp_processor: bool = True
     chat_history_log_file: Optional[str] = None
-    predict_correct_completion_symbol: bool = False
+    predict_correct_completion_symbol: bool = True
     force_custom_pad: bool = False
     masked_gen: bool = True
     enabled: bool = (

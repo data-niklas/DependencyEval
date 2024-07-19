@@ -1,6 +1,6 @@
-from os import path, listdir
 import json
 import re
+from os import listdir, path
 
 from dependency_eval import NAME, VERSION
 
@@ -10,6 +10,7 @@ IMPORT_RE = re.compile(
 )
 DOC_RE = re.compile(r'"""((.|\n)+)"""', re.MULTILINE)
 INIT_FILE = path.join(path.dirname(__file__), "__init__.py")
+
 
 def content(file):
     with open(file, "r") as f:
@@ -91,18 +92,18 @@ def read_tasks(data_directory: str):
         )
     return tasks
 
+
 def replace_version(new_version: str):
     with open(INIT_FILE, "r") as f:
         lines = f.readlines()
     patched_lines = [
-        line
-        if not line.startswith("VERSION =")
-        else f"VERSION = \"{new_version}\""
+        line if not line.startswith("VERSION =") else f'VERSION = "{new_version}"'
         for line in lines
     ]
     patched_init = "\n".join(patched_lines)
     with open(INIT_FILE, "w") as f:
         f.write(patched_init)
+
 
 def build_dataset(data_directory: str, version: str):
     dataset_name = f"{NAME}_{version}.jsonl"
