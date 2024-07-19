@@ -2,12 +2,6 @@ from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
 
-@dataclass
-class GlobalArgs:
-    dataset_file: str
-    results_directory: str
-    model_configurations_directory: str
-
 
 @dataclass
 class ModelConfiguration:
@@ -30,7 +24,7 @@ class LspGenerationConfig:
     boundary_processor: bool = True
     lsp_processor: bool = True
     chat_history_log_file: Optional[str] = None
-    predict_correct_completion_symbol: bool = True
+    predict_correct_completion_symbol: bool = False
     force_custom_pad: bool = False
     masked_gen: bool = True
     enabled: bool = (

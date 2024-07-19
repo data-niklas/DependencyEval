@@ -8,6 +8,7 @@ import json
 import click
 from tqdm import tqdm
 
+from dependency_eval import VERSION
 from dependency_eval.dataset_utils import get_code_directory
 from dependency_eval.eval import eval_item
 from dependency_eval.generate import run_neural_code_completion
@@ -17,19 +18,24 @@ from dependency_eval.loader import (
     read_model_configurations,
 )
 from dependency_eval.loop import run_loop
-from dependency_eval.models import GlobalArgs, LspGenerationConfig, ModelConfiguration
+from dependency_eval.models import LspGenerationConfig, ModelConfiguration
 from dependency_eval.venv_cache import get_venv_for_item
+from dependency_eval.build import build_dataset, replace_version, update_version
+
 
 def output_path(configuration: ModelConfiguration, results):
     file_name = configuration.name + ".json"
     return path.join(results, file_name)
 
+
 PROJECT_BASE_PATH = path.dirname(path.dirname(__file__))
-DATASET_DIST_PATH = path.join(PROJECT_BASE_PATH, "data", "dist")
+DATASET_PATH = path.join(PROJECT_BASE_PATH, "data")
+
+DATASET_DIST_PATH = path.join(DATASET_PATH, "dist")
 EVALUATION_RESULT_PATH = path.join(PROJECT_BASE_PATH, "results", "evaluations")
 MODEL_CONFIGURATIONS_PATH = path.join(PROJECT_BASE_PATH, "model_configurations")
 
-DEFAULT_DATASET_VERSION = "0.2.1"
+DEFAULT_DATASET_VERSION = VERSION
 DEFAULT_DATASET_PATH = path.join(
     DATASET_DIST_PATH, f"DependencyEval_{DEFAULT_DATASET_VERSION}.jsonl"
 )
@@ -40,33 +46,48 @@ DEFAULT_EVALUATION_RESULT_PATH = path.join(EVALUATION_RESULT_PATH, TODAY)
 
 
 @click.group()
-@click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
-@click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
-@click.option("--model-configurations-directory", default=MODEL_CONFIGURATIONS_PATH)
+@click.version_option(VERSION)
 @click.pass_context
-def cli(ctx, dataset_file, results_directory, model_configurations_directory):
-    ctx.obj = GlobalArgs(
-        dataset_file=dataset_file,
-        results_directory=results_directory,
-        model_configurations_directory=model_configurations_directory,
-    )
+def cli(ctx):
+    ctx.obj = None
+
+
+@cli.command()
+@click.option(
+    "-t",
+    "--update-type",
+    type=click.Choice(["major", "minor", "patch"], case_sensitive=False),
+)
+@click.pass_obj
+def build(args, update_type):
+    new_version = update_version(update_type)
+    replace_version(new_version)
+    build_dataset(DATASET_PATH, new_version)
 
 
 @cli.command()
 @click.option("--llm-lsp-directory", required=True)
 @click.option("--venv-cache-directory", default=DEFAULT_VENV_CACHE_DIRECTORY)
+@click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
+@click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
+@click.option("--model-configurations-directory", default=MODEL_CONFIGURATIONS_PATH)
 @click.pass_obj
-def all(args: GlobalArgs, llm_lsp_directory: str, venv_cache_directory: str):
-    model_configurations = read_model_configurations(
-        args.model_configurations_directory
-    )
-    dataset = load_dataset(args.dataset_file)
+def all(
+    args,
+    llm_lsp_directory: str,
+    venv_cache_directory: str,
+    dataset_file: str,
+    results_directory: str,
+    model_configurations_directory: str,
+):
+    model_configurations = read_model_configurations(model_configurations_directory)
+    dataset = load_dataset(dataset_file)
 
-    if not path.exists(args.results_directory):
-        os.makedirs(args.results_directory)
+    if not path.exists(results_directory):
+        os.makedirs(results_directory)
 
     def model_configuration_finished_cb(model_configuration: ModelConfiguration):
-        out_path = output_path(model_configuration, args.results_directory)
+        out_path = output_path(model_configuration, results_directory)
         result = {
             "model": model_configuration.model,
             "config": model_configuration.config,
@@ -126,19 +147,18 @@ def all(args: GlobalArgs, llm_lsp_directory: str, venv_cache_directory: str):
 
 
 @cli.command()
+@click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
 @click.option("--llm-lsp-directory", required=True)
 @click.option("--venv-cache-directory", default=DEFAULT_VENV_CACHE_DIRECTORY)
 @click.pass_obj
-def create_venvs(args: GlobalArgs, llm_lsp_directory: str, venv_cache_directory: str):
-    dataset = load_dataset(args.dataset_file)
+def create_venvs(
+    args, dataset_file: str, llm_lsp_directory: str, venv_cache_directory: str
+):
+    dataset = load_dataset(dataset_file)
     for item in tqdm(dataset.items):
         tqdm.write(item["task_name"])
-        get_venv_for_item(
-            venv_cache_directory,
-            None,
-            llm_lsp_directory,
-            item
-        )
+        get_venv_for_item(venv_cache_directory, None, llm_lsp_directory, item)
+
 
 if __name__ == "__main__":
     cli()
