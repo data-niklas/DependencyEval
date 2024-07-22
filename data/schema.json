@@ -1,0 +1,87 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/json-schema-core",
+    "type": "object",
+    "properties": {
+      "task_id": {
+        "type": "string",
+        "pattern": "^PackageEval_\\d+$"
+      },
+      "task_name": {
+        "type": "string",
+        "pattern": "^.*_\\d+$"
+      },
+      "test_code": {
+        "type": "string"
+      },
+      "import_statements": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "package_dependencies": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "context": {
+        "type": "string"
+      },
+      "function_signature": {
+        "type": "string"
+      },
+      "function_documentation": {
+        "type": "string"
+      },
+      "entry_point": {
+        "type": "string"
+      },
+      "solution": {
+        "type": "string"
+      },
+      "reason": {
+        "type": "string"
+      },
+      "kind": {
+        "type": "string"
+      },
+      "date": {
+        "type": "string",
+        "format": "date"
+      },
+      "code_kind": {
+        "type": "string"
+      },
+      "modification_kind": {
+        "type": "string"
+      },
+      "changelog": {
+        "type": "string",
+        "format": "uri"
+      },
+      "python_version": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "task_id",
+      "task_name",
+      "test_code",
+      "import_statements",
+      "package_dependencies",
+      "context",
+      "function_signature",
+      "function_documentation",
+      "entry_point",
+      "solution",
+      "reason",
+      "kind",
+      "date",
+      "code_kind",
+      "modification_kind",
+      "changelog",
+      "python_version"
+    ]
+  }
+  
