@@ -1,5 +1,7 @@
-virtualenv-clone
+click
+matplotlib
 openpyxl
 sankeyflow
-matplotlib
-click
+textual
+tqdm
+virtualenv-clone
