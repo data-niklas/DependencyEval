@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 from tqdm import tqdm
 
-from dependency_eval.constants import DOCKER_IMAGE
+from dependency_eval.constants import DOCKER_IMAGE, SALT
 from dependency_eval.dataset_utils import (
     get_generated_llm_lsp_code,
     get_generated_vanilla_code,
@@ -46,7 +46,7 @@ def get_docker_cmd(item: Dict[str, Any], code_file: str, requirements_file: str)
         "-it",
         "--rm",
         "--name",
-        "dev_dataset_eval_item",
+        "dev_dataset_eval_item_"+SALT,
         "-v",
         f"{requirements_file}:/tool/requirements.txt",
         "-v",
@@ -100,7 +100,7 @@ def eval_item(
         results = ["error", "error", "error"]
         item["test_results"] = results
     finally:
-        subprocess.Popen(["docker", "rm", "dev_dataset_eval_item", "-f"]).communicate()
+        subprocess.Popen(["docker", "rm", "dev_dataset_eval_item_" + SALT, "-f"]).communicate()
         os.remove(code_file)
         os.remove(requirements_file)
     return results

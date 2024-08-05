@@ -1,7 +1,5 @@
 from os import path
-
-from dependency_eval.constants import INDENT
-
+from dependency_eval.constants import INDENT, SALT
 
 def get_requirements(item) -> str:
     requirements = item["package_dependencies"].copy()
@@ -10,7 +8,7 @@ def get_requirements(item) -> str:
 
 
 def get_code_directory(base_directory, item) -> str:
-    return path.join(base_directory, "eval_code_" + item["task_name"])
+    return path.join(base_directory, "eval_code_" + item["task_name"] + "_" + SALT)
 
 
 def get_completion_code(item) -> str:

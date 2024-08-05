@@ -23,9 +23,9 @@ class LspGenerationConfig:
     boundary_processor: bool = True
     lsp_processor: bool = True
     chat_history_log_file: Optional[str] = None
-    predict_correct_completion_symbol: bool = True
+    predict_correct_completion_symbol: bool = False
     force_custom_pad: bool = False
-    masked_gen: bool = True
+    masked_gen: bool = False
     use_completion_context: bool = False
     use_deprecation_context: bool = True
     use_signature_context: bool = True
