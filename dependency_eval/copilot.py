@@ -5,8 +5,13 @@ from os import path
 import subprocess
 from dependency_eval.constants import COPILOT_NODE_SERVER_REPOSITORY
 import time
+from logzero import logger
+
 
 def ensure_copilot_node_server(copilot_node_server_directory: str):
+    if path.exists(copilot_node_server_directory):
+        logger.debug("Copilot node server directory already exists")
+        return
     command = [
         "git",
         "clone",
@@ -16,13 +21,14 @@ def ensure_copilot_node_server(copilot_node_server_directory: str):
     output, errors = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
     ).communicate(timeout=120)
+    logger.debug("Done cloning copilot node server repository")
 
 
 async def create_copilot_lsp(code_dir, copilot_node_server_dir):
     lsp: BaseLanguageClient = BaseLanguageClient("copilot", "1.0.0")
     await lsp.start_io(
         "node",
-        path.join(copilot_node_server_dir, "copilot", "dist", "agent.js"),
+        path.join(copilot_node_server_dir, "copilot", "dist", "language-server.js"),
         "--stdio",
     )
 

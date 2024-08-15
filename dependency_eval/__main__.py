@@ -8,6 +8,7 @@ import time
 
 import click
 from tqdm import tqdm
+import asyncio
 
 from dependency_eval import VERSION
 from dependency_eval.build import build_dataset, replace_version, update_version
@@ -18,6 +19,11 @@ from dependency_eval.loader import (
     load_dataset,
     read_generation_results,
     read_model_configurations,
+)
+from dependency_eval.copilot import (
+    create_copilot_lsp,
+    generate_item_with_copilot,
+    ensure_copilot_node_server,
 )
 from dependency_eval.table import export_table, show_table
 from dependency_eval.loop import run_loop
@@ -45,7 +51,9 @@ DEFAULT_DATASET_PATH = path.join(
     DATASET_DIST_PATH, f"DependencyEval_{DEFAULT_DATASET_VERSION}.jsonl"
 )
 DEFAULT_VENV_CACHE_DIRECTORY = path.join(PROJECT_BASE_PATH, "venv_cache")
-DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY = path.join(PROJECT_BASE_PATH, "copilot-node-server")
+DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY = path.join(
+    PROJECT_BASE_PATH, "copilot-node-server"
+)
 
 TODAY = datetime.now().date().strftime("%Y-%m-%d")
 DEFAULT_EVALUATION_RESULT_PATH = path.join(EVALUATION_RESULT_PATH, TODAY)
@@ -92,12 +100,14 @@ def plot_evaluation(args, evaluation_results_directory: str, plot_file: str):
 def show_evaluation_table(args, evaluation_results_directory: str):
     show_table(evaluation_results_directory)
 
+
 @cli.command()
 @click.option("-r", "--evaluation-results-directory", required=True)
 @click.option("-e", "--excel-file", default="table.xsls")
 @click.pass_obj
 def export_evaluation_table(args, evaluation_results_directory: str, excel_file: str):
     export_table(evaluation_results_directory, excel_file)
+
 
 @cli.command()
 @click.option("--llm-lsp-directory", required=True)
@@ -143,24 +153,28 @@ def all(
         get_venv_for_item(venv_cache_directory, venv_directory, llm_lsp_directory, item)
 
         lsp_generation_config.enabled = True
-        generated_with, generated_with_log, generated_with_duration = run_neural_code_completion(
-            model_configuration,
-            item,
-            lsp_generation_config,
-            venv_directory,
-            code_directory,
+        generated_with, generated_with_log, generated_with_duration = (
+            run_neural_code_completion(
+                model_configuration,
+                item,
+                lsp_generation_config,
+                venv_directory,
+                code_directory,
+            )
         )
         item["generated_code_llm_lsp"] = generated_with
         item["generation_log_llm_lsp"] = generated_with_log
         item["generation_duration_llm_lsp"] = generated_with_duration
 
         lsp_generation_config.enabled = False
-        generated_without, generated_without_log, generated_without_duration = run_neural_code_completion(
-            model_configuration,
-            item,
-            lsp_generation_config,
-            venv_directory,
-            code_directory,
+        generated_without, generated_without_log, generated_without_duration = (
+            run_neural_code_completion(
+                model_configuration,
+                item,
+                lsp_generation_config,
+                venv_directory,
+                code_directory,
+            )
         )
         item["generated_code_vanilla"] = generated_without
         item["generation_log_vanilla"] = generated_without_log
@@ -195,23 +209,32 @@ def create_venvs(
         tqdm.write(item["task_name"])
         get_venv_for_item(venv_cache_directory, None, llm_lsp_directory, item)
 
-import asyncio
-from dependency_eval.copilot import create_copilot_lsp, generate_item_with_copilot, ensure_copilot_node_server
 
 @cli.command()
 @click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
 @click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
-@click.option("--copilot-node-server-directory", default=DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY)
+@click.option(
+    "--copilot-node-server-directory",
+    default=DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY,
+)
 @click.pass_obj
 def evaluate_copilot(
-    args,
-    dataset_file: str,
-    results_directory: str,
-    copilot_node_server_directory: str
+    args, dataset_file: str, results_directory: str, copilot_node_server_directory: str
+):
+    asyncio.run(
+        evaluate_copilot_inner(
+            args, dataset_file, results_directory, copilot_node_server_directory
+        )
+    )
+
+
+async def evaluate_copilot_inner(
+    _args, dataset_file: str, results_directory: str, copilot_node_server_directory: str
 ):
     ensure_copilot_node_server(copilot_node_server_directory)
     dataset = load_dataset(dataset_file)
     lsp_generation_config = LspGenerationConfig()
+    model_configuration = COPILOT_MODEL_CONFIGURATION
 
     if not path.exists(results_directory):
         os.makedirs(results_directory)
@@ -222,8 +245,10 @@ def evaluate_copilot(
         if path.exists(code_directory):
             rmtree(code_directory)
         os.mkdir(code_directory)
-        lsp = await create_copilot_lsp(code_dir, copilot_node_server_directory)
-        generated_without, generated_without_duration = await generate_item_with_copilot(item, lsp, code_directory)
+        lsp = await create_copilot_lsp(code_directory, copilot_node_server_directory)
+        generated_without, generated_without_duration = (
+            await generate_item_with_copilot(item, lsp, code_directory)
+        )
         item["generated_code_vanilla"] = generated_without
         item["generation_duration_vanilla"] = generated_without_duration
 
@@ -234,7 +259,6 @@ def evaluate_copilot(
         item["evaluated_code_vanilla"] = eval_results_without
         rmtree(code_directory)
 
-    model_configuration = COPILOT_MODEL_CONFIGURATION
     out_path = output_path(model_configuration, results_directory)
     result = {
         "model": model_configuration.model,

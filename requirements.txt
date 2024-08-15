@@ -5,6 +5,7 @@ sankeyflow
 textual
 tqdm
 virtualenv-clone
+logzero
 # The following is only required for Copilot evaluation
 asyncio
 pygls @ git+https://github.com/openlawlibrary/pygls.git
