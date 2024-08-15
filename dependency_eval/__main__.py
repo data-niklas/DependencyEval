@@ -25,6 +25,7 @@ from dependency_eval.models import LspGenerationConfig, ModelConfiguration
 from dependency_eval.plots import plot_stats
 from dependency_eval.stats import show_stats
 from dependency_eval.venv_cache import get_venv_for_item
+from dependency_eval.constants import COPILOT_MODEL_CONFIGURATION
 
 
 def output_path(configuration: ModelConfiguration, results):
@@ -44,6 +45,7 @@ DEFAULT_DATASET_PATH = path.join(
     DATASET_DIST_PATH, f"DependencyEval_{DEFAULT_DATASET_VERSION}.jsonl"
 )
 DEFAULT_VENV_CACHE_DIRECTORY = path.join(PROJECT_BASE_PATH, "venv_cache")
+DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY = path.join(PROJECT_BASE_PATH, "copilot-node-server")
 
 TODAY = datetime.now().date().strftime("%Y-%m-%d")
 DEFAULT_EVALUATION_RESULT_PATH = path.join(EVALUATION_RESULT_PATH, TODAY)
@@ -192,6 +194,56 @@ def create_venvs(
     for item in tqdm(dataset.items):
         tqdm.write(item["task_name"])
         get_venv_for_item(venv_cache_directory, None, llm_lsp_directory, item)
+
+import asyncio
+from dependency_eval.copilot import create_copilot_lsp, generate_item_with_copilot, ensure_copilot_node_server
+
+@cli.command()
+@click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
+@click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
+@click.option("--copilot-node-server-directory", default=DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY)
+@click.pass_obj
+def evaluate_copilot(
+    args,
+    dataset_file: str,
+    results_directory: str,
+    copilot_node_server_directory: str
+):
+    ensure_copilot_node_server(copilot_node_server_directory)
+    dataset = load_dataset(dataset_file)
+    lsp_generation_config = LspGenerationConfig()
+
+    if not path.exists(results_directory):
+        os.makedirs(results_directory)
+
+    for item in tqdm(dataset.items):
+        tqdm.write(item["task_name"])
+        code_directory = get_code_directory(PROJECT_BASE_PATH, item)
+        if path.exists(code_directory):
+            rmtree(code_directory)
+        os.mkdir(code_directory)
+        lsp = await create_copilot_lsp(code_dir, copilot_node_server_directory)
+        generated_without, generated_without_duration = await generate_item_with_copilot(item, lsp, code_directory)
+        item["generated_code_vanilla"] = generated_without
+        item["generation_duration_vanilla"] = generated_without_duration
+
+        lsp_generation_config.enabled = False
+        eval_results_without = eval_item(
+            model_configuration, item, lsp_generation_config, code_directory
+        )
+        item["evaluated_code_vanilla"] = eval_results_without
+        rmtree(code_directory)
+
+    model_configuration = COPILOT_MODEL_CONFIGURATION
+    out_path = output_path(model_configuration, results_directory)
+    result = {
+        "model": model_configuration.model,
+        "config": model_configuration.config,
+        "name": model_configuration.name,
+        "items": dataset.items,
+    }
+    with open(out_path, "w") as f:
+        f.write(json.dumps(result))
 
 
 if __name__ == "__main__":

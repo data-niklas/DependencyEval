@@ -32,3 +32,15 @@ May be one of the following values:
 - Uses Docker to reduce the risk of running untrusted code
 - Limits the time the evaluated code may run
 - For a more secure solution install gVisor
+
+
+## Requirements
+### For Copilot
+Python dependencies:
+- asyncio
+- pygls @ git+https://github.com/openlawlibrary/pygls.git
+
+Copilot node server:
+- Will be downloaded automatically and cached locally
+
+Access to copilot
