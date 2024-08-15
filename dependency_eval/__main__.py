@@ -4,6 +4,7 @@ from datetime import datetime
 from os import path
 from shutil import rmtree
 from typing import Any, Dict
+import time
 
 import click
 from tqdm import tqdm
@@ -140,7 +141,7 @@ def all(
         get_venv_for_item(venv_cache_directory, venv_directory, llm_lsp_directory, item)
 
         lsp_generation_config.enabled = True
-        generated_with, generated_with_log = run_neural_code_completion(
+        generated_with, generated_with_log, generated_with_duration = run_neural_code_completion(
             model_configuration,
             item,
             lsp_generation_config,
@@ -149,9 +150,10 @@ def all(
         )
         item["generated_code_llm_lsp"] = generated_with
         item["generation_log_llm_lsp"] = generated_with_log
+        item["generation_duration_llm_lsp"] = generated_with_duration
 
         lsp_generation_config.enabled = False
-        generated_without, generated_without_log = run_neural_code_completion(
+        generated_without, generated_without_log, generated_without_duration = run_neural_code_completion(
             model_configuration,
             item,
             lsp_generation_config,
@@ -160,6 +162,7 @@ def all(
         )
         item["generated_code_vanilla"] = generated_without
         item["generation_log_vanilla"] = generated_without_log
+        item["generation_duration_vanilla"] = generated_without_duration
 
         lsp_generation_config.enabled = True
         eval_results_with = eval_item(

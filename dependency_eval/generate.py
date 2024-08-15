@@ -4,6 +4,7 @@ import subprocess
 from dataclasses import asdict
 from os import path
 from typing import Any, Dict
+import time
 
 from logzero import logger
 from tqdm import tqdm
@@ -45,7 +46,10 @@ def run_neural_code_completion(
         json.dumps(model_configuration.config),
         json.dumps(lsp_generation_configuration_dict),
     ]
+    start_time = time.time()
     output, error = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()
+    end_time = time.time()
+    generation_duration = end_time - start_time
     generated = output.decode()
     logger.debug(generated)
     if path.exists(LOG_FILE):
@@ -55,7 +59,7 @@ def run_neural_code_completion(
     else:
         log_content = ""
     os.remove(code_file)
-    return generated, log_content
+    return generated, log_content, generation_duration
 
 
 def generate_item(
