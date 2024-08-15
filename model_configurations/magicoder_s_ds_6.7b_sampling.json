@@ -1,0 +1,12 @@
+{
+    "model": "ise-uiuc/Magicoder-S-DS-6.7B",
+    "config": {
+        "do_sample": true,
+        "num_return_sequences": 1,
+        "max_new_tokens": 2048,
+        "repetition_penalty": 1.3,
+        "max_time": 90.0,
+        "top_k": 50,
+        "top_p": 0.95
+    }
+}

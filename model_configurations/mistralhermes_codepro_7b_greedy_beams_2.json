@@ -1,0 +1,11 @@
+{
+    "model": "beowolx/MistralHermes-CodePro-7B-v1",
+    "config": {
+        "do_sample": false,
+        "num_return_sequences": 1,
+        "max_new_tokens": 2048,
+        "repetition_penalty": 1.3,
+        "max_time": 90.0,
+        "num_beams": 2
+    }
+}
