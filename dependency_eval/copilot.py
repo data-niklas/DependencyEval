@@ -1,11 +1,13 @@
-from dependency_eval.dataset_utils import get_completion_code
-from pygls.lsp.client import BaseLanguageClient
-from lsprotocol.types import *
-from os import path
 import subprocess
-from dependency_eval.constants import COPILOT_NODE_SERVER_REPOSITORY
 import time
+from os import path
+
 from logzero import logger
+from lsprotocol.types import *
+from pygls.lsp.client import BaseLanguageClient
+
+from dependency_eval.constants import COPILOT_NODE_SERVER_REPOSITORY
+from dependency_eval.dataset_utils import get_completion_code
 
 
 def ensure_copilot_node_server(copilot_node_server_directory: str):
@@ -117,7 +119,7 @@ async def generate_item_with_copilot(item, lsp, code_dir):
     code = get_completion_code(item)
     code_path = path.join(code_dir, "code.py")
     with open(code_path, "w") as f:
-        f.write(code)
+        f.write(code + "\n")
     uri = "file://" + path.abspath(code_path)
     text_document_item = TextDocumentItem(
         uri=uri,
@@ -141,6 +143,6 @@ async def generate_item_with_copilot(item, lsp, code_dir):
         "getCompletions",
         {"doc": doc, "textDocument": {"uri": doc["uri"], "version": doc["version"]}},
     )
-    generated = completions.completions[0].text
+    generated = "\n" + completions.completions[0].text
     end_time = time.time()
     return generated, end_time - start_time

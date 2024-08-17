@@ -114,45 +114,6 @@
         "python_version": "3.8"
     },
     {
-        "task_name": "pytorch_1",
-        "package_dependencies": [
-            "torch==2.2.0"
-        ],
-        "reason": "The parameter reduction of CrossEntropyLoss is the 'proper' way to choose a reduction. Other parameters such as reduce are deprecated since a long time",
-        "kind": "modification",
-        "date": "2018-07-26",
-        "code_kind": "parameter",
-        "modification_kind": "deprecation",
-        "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.4.1",
-        "python_version": "3.8"
-    },
-    {
-        "task_name": "pytorch_2",
-        "package_dependencies": [
-            "torch==2.2.0"
-        ],
-        "reason": "Torch Arange should be used in favor of Python arange or torch.range",
-        "kind": "modification",
-        "date": "2017-05-03",
-        "code_kind": "function",
-        "modification_kind": "deprecation",
-        "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.1.12",
-        "python_version": "3.8"
-    },
-    {
-        "task_name": "pytorch_3",
-        "package_dependencies": [
-            "torch==2.2.0"
-        ],
-        "reason": "The function cholesky was moved into another module",
-        "kind": "modification",
-        "date": "2021-05-04",
-        "code_kind": "parameter",
-        "modification_kind": "deprecation",
-        "changelog": "https://github.com/pytorch/pytorch/releases/tag/v1.8.0",
-        "python_version": "3.8"
-    },
-    {
         "task_name": "rich_1",
         "package_dependencies": [
             "rich==13.7.0"
@@ -163,6 +124,19 @@
         "code_kind": "method",
         "modification_kind": "addition",
         "changelog": "https://github.com/Textualize/rich/blob/v13.7.0/CHANGELOG.md",
+        "python_version": "3.8"
+    },
+    {
+        "task_name": "rich_2",
+        "package_dependencies": [
+            "git+https://github.com/Textualize/rich.git@e1e6d745f670ff3df6b8f47377c0a4006cb74066"
+        ],
+        "reason": "The parameter was recently added",
+        "kind": "modification",
+        "date": "2024-07-26",
+        "code_kind": "parameter",
+        "modification_kind": "addition",
+        "changelog": "https://raw.githubusercontent.com/Textualize/rich/db17c2370cab8e06574fa8f9a7bbc6dbd3a73a3f/CHANGELOG.md",
         "python_version": "3.8"
     },
     {
@@ -279,6 +253,32 @@
         "code_kind": "package",
         "modification_kind": "addition",
         "changelog": "https://github.com/trducng/theflow/compare/v0.8.5...v0.8.6",
+        "python_version": "3.8"
+    },
+    {
+        "task_name": "pandas_1",
+        "package_dependencies": [
+            "pandas==2.2.1"
+        ],
+        "reason": "The method parameter skipna was recently for some classes",
+        "kind": "modification",
+        "date": "2024-02-22",
+        "code_kind": "parameter",
+        "modification_kind": "addition",
+        "changelog": "https://pandas.pydata.org/pandas-docs/version/2.2.2/whatsnew/v2.2.1.html",
+        "python_version": "3.8"
+    },
+    {
+        "task_name": "numpy_1",
+        "package_dependencies": [
+            "numpy==2.0.0"
+        ],
+        "reason": "The methods of the namespace strings have been recently added",
+        "kind": "modification",
+        "date": "2024-06-16",
+        "code_kind": "parameter",
+        "modification_kind": "addition",
+        "changelog": "https://github.com/numpy/numpy/releases/tag/v2.0.0",
         "python_version": "3.8"
     }
 ]

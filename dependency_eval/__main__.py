@@ -1,37 +1,40 @@
+import asyncio
 import json
 import os
+import time
 from datetime import datetime
 from os import path
 from shutil import rmtree
 from typing import Any, Dict
-import time
+from dataclasses import asdict
 
 import click
 from tqdm import tqdm
-import asyncio
 
 from dependency_eval import VERSION
 from dependency_eval.build import build_dataset, replace_version, update_version
+from dependency_eval.constants import COPILOT_MODEL_CONFIGURATION
+from dependency_eval.copilot import (
+    create_copilot_lsp,
+    ensure_copilot_node_server,
+    generate_item_with_copilot,
+)
 from dependency_eval.dataset_utils import get_code_directory
 from dependency_eval.eval import eval_item
 from dependency_eval.generate import run_neural_code_completion
 from dependency_eval.loader import (
     load_dataset,
+    load_lsp_generation_config,
     read_generation_results,
     read_model_configurations,
+    load_result_file
 )
-from dependency_eval.copilot import (
-    create_copilot_lsp,
-    generate_item_with_copilot,
-    ensure_copilot_node_server,
-)
-from dependency_eval.table import export_table, show_table
 from dependency_eval.loop import run_loop
 from dependency_eval.models import LspGenerationConfig, ModelConfiguration
 from dependency_eval.plots import plot_stats
-from dependency_eval.stats import show_stats
+from dependency_eval.stats import show_result_stats, show_dataset_stats
+from dependency_eval.table import export_table, show_table
 from dependency_eval.venv_cache import get_venv_for_item
-from dependency_eval.constants import COPILOT_MODEL_CONFIGURATION
 
 
 def output_path(configuration: ModelConfiguration, results):
@@ -53,6 +56,9 @@ DEFAULT_DATASET_PATH = path.join(
 DEFAULT_VENV_CACHE_DIRECTORY = path.join(PROJECT_BASE_PATH, "venv_cache")
 DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY = path.join(
     PROJECT_BASE_PATH, "copilot-node-server"
+)
+DEFAULT_LSP_GENERATION_CONFIG_PATH = path.join(
+    PROJECT_BASE_PATH, "lsp_generation_configs"
 )
 
 TODAY = datetime.now().date().strftime("%Y-%m-%d")
@@ -83,7 +89,13 @@ def build(args, update_type):
 @click.option("-r", "--evaluation-results-directory", required=True)
 @click.pass_obj
 def evaluation_stats(args, evaluation_results_directory: str):
-    show_stats(evaluation_results_directory)
+    show_result_stats(evaluation_results_directory)
+
+@cli.command()
+@click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
+@click.pass_obj
+def dataset_stats(args, dataset_file: str):
+    show_dataset_stats(dataset_file)
 
 
 @cli.command()
@@ -115,6 +127,9 @@ def export_evaluation_table(args, evaluation_results_directory: str, excel_file:
 @click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
 @click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
 @click.option("--model-configurations-directory", default=MODEL_CONFIGURATIONS_PATH)
+@click.option(
+    "--lsp-generation-config-file", default=DEFAULT_LSP_GENERATION_CONFIG_PATH
+)
 @click.pass_obj
 def all(
     args,
@@ -123,25 +138,33 @@ def all(
     dataset_file: str,
     results_directory: str,
     model_configurations_directory: str,
+    lsp_generation_config_file: str,
 ):
     model_configurations = read_model_configurations(model_configurations_directory)
     dataset = load_dataset(dataset_file)
+    lsp_generation_config = load_lsp_generation_config(lsp_generation_config_file)
 
     if not path.exists(results_directory):
         os.makedirs(results_directory)
 
     def model_configuration_finished_cb(model_configuration: ModelConfiguration):
         out_path = output_path(model_configuration, results_directory)
+        lsp_generation_config_dict = asdict(lsp_generation_config)
+        del lsp_generation_config_dict["chat_history_log_file"]
+        del lsp_generation_config_dict["enabled"]
         result = {
             "model": model_configuration.model,
             "config": model_configuration.config,
             "name": model_configuration.name,
             "items": dataset.items,
+            "lsp_generation_config": lsp_generation_config_dict
         }
         with open(out_path, "w") as f:
             f.write(json.dumps(result))
 
-    lsp_generation_config = LspGenerationConfig()
+    def maybe_skip_model_configuration_cb(model_configuration: ModelConfiguration):
+        out_path = output_path(model_configuration, results_directory)
+        return path.exists(out_path)
 
     def item_cb(model_configuration: ModelConfiguration, item: Dict[str, Any]):
         code_directory = get_code_directory(PROJECT_BASE_PATH, item)
@@ -193,7 +216,7 @@ def all(
         item["evaluated_code_vanilla"] = eval_results_without
         rmtree(code_directory)
 
-    run_loop(model_configurations, dataset, model_configuration_finished_cb, item_cb)
+    run_loop(model_configurations, dataset, model_configuration_finished_cb, item_cb, maybe_skip_model_configuration_cb)
 
 
 @cli.command()
@@ -235,9 +258,15 @@ async def evaluate_copilot_inner(
     dataset = load_dataset(dataset_file)
     lsp_generation_config = LspGenerationConfig()
     model_configuration = COPILOT_MODEL_CONFIGURATION
+    out_path = output_path(model_configuration, results_directory)
+    result_exists = False
 
     if not path.exists(results_directory):
         os.makedirs(results_directory)
+
+    if path.exists(out_path):
+        _, dataset.items, _ = load_result_file(out_path)
+        result_exists = True
 
     for item in tqdm(dataset.items):
         tqdm.write(item["task_name"])
@@ -245,12 +274,14 @@ async def evaluate_copilot_inner(
         if path.exists(code_directory):
             rmtree(code_directory)
         os.mkdir(code_directory)
-        lsp = await create_copilot_lsp(code_directory, copilot_node_server_directory)
-        generated_without, generated_without_duration = (
-            await generate_item_with_copilot(item, lsp, code_directory)
-        )
-        item["generated_code_vanilla"] = generated_without
-        item["generation_duration_vanilla"] = generated_without_duration
+        if not result_exists:
+            lsp = await create_copilot_lsp(code_directory, copilot_node_server_directory)
+            (
+                generated_without,
+                generated_without_duration,
+            ) = await generate_item_with_copilot(item, lsp, code_directory)
+            item["generated_code_vanilla"] = generated_without
+            item["generation_duration_vanilla"] = generated_without_duration
 
         lsp_generation_config.enabled = False
         eval_results_without = eval_item(
@@ -259,12 +290,15 @@ async def evaluate_copilot_inner(
         item["evaluated_code_vanilla"] = eval_results_without
         rmtree(code_directory)
 
-    out_path = output_path(model_configuration, results_directory)
+    lsp_generation_config_dict = asdict(lsp_generation_config)
+    del lsp_generation_config_dict["chat_history_log_file"]
+    del lsp_generation_config_dict["enabled"]
     result = {
         "model": model_configuration.model,
         "config": model_configuration.config,
         "name": model_configuration.name,
         "items": dataset.items,
+        "lsp_generation_config": lsp_generation_config_dict
     }
     with open(out_path, "w") as f:
         f.write(json.dumps(result))

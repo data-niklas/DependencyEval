@@ -5,6 +5,7 @@ from typing import List
 
 from dependency_eval.models import (
     Dataset,
+    LspGenerationConfig,
     ModelConfiguration,
     ModelConfigurationGeneration,
 )
@@ -49,3 +50,21 @@ def load_dataset(dataset_path) -> Dataset:
     with open(dataset_path, "r") as f:
         items = [json.loads(i) for i in f.read().splitlines()]
     return Dataset(name=path.basename(dataset_path)[:-6], items=items)
+
+
+def load_lsp_generation_config(config_file):
+    with open(config_file, "r") as f:
+        config = json.loads(f.read())
+    return LspGenerationConfig(**config)
+
+def load_result_file(result_file):
+    with open(result_file, "r") as f:
+        result_content = json.loads(f.read())
+    model_configuration = ModelConfiguration(
+        model=result_content["model"],
+        config=result_content["config"],
+        name=result_content["name"]
+    )
+    dataset_items = result_content["items"]
+    lsp_generation_config = result_content["lsp_generation_config"]
+    return model_configuration, dataset_items, lsp_generation_config

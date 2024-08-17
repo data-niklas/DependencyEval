@@ -3,11 +3,11 @@ from collections import defaultdict
 from matplotlib import pyplot as plt
 from sankeyflow import Sankey
 
-from dependency_eval.stats import get_stats
+from dependency_eval.stats import get_result_stats
 
 
 def plot_stats(evaluation_results_directory: str, plot_file: str):
-    _, _, _, flows = get_stats(evaluation_results_directory)
+    _, _, _, flows = get_result_stats(evaluation_results_directory)
     labels = ["full", "partial", "none", "error"]
     node_values = defaultdict(int)
     for k, v in flows.items():

@@ -33,7 +33,12 @@ class LspGenerationConfig:
         True  # quick setting to disable all processors, overrides other settings
     )
 
+
 @dataclass
 class Dataset:
     name: str
     items: List[Dict[str, Any]]
+
+KINDS = ["modification", "uncommon"]
+CODE_KINDS = ["field", "parameter", "function", "method", "block"]
+MODIFICATION_KIND = ["addition", "removal", "deprecation", "rename"]

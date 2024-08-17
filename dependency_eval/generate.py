@@ -1,10 +1,10 @@
 import json
 import os
 import subprocess
+import time
 from dataclasses import asdict
 from os import path
 from typing import Any, Dict
-import time
 
 from logzero import logger
 from tqdm import tqdm

@@ -79,6 +79,8 @@ def find_column_names(items):
         if "evaluated_code_llm_lsp" in i["items"][0]:
             names.append(base_name.replace("METHOD", " +lsp"))
     return names
+
+
 def get_table_items(evaluation_results_directory: str):
     items = []
     for name in os.listdir(evaluation_results_directory):
@@ -133,6 +135,7 @@ def show_table(evaluation_results_directory: str):
     column_names, text = get_table_items(evaluation_results_directory)
     app = TableApp([""] + column_names, text)
     app.run()
+
 
 def export_table(evaluation_results_directory: str, excel_file: str):
     column_names, text = get_table_items(evaluation_results_directory)

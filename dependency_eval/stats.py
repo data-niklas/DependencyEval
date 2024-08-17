@@ -6,6 +6,9 @@ from collections import defaultdict
 from functools import cmp_to_key
 from os import path
 
+from dependency_eval.loader import load_dataset
+from dependency_eval.models import KINDS, CODE_KINDS, MODIFICATION_KIND
+
 
 def lt_config(a, b):
     if "do_sample" not in a:
@@ -72,7 +75,7 @@ def map_results(results):
     return r
 
 
-def get_stats(evaluation_results_directory: str):
+def get_result_stats(evaluation_results_directory: str):
     items = []
     for name in os.listdir(evaluation_results_directory):
         if not name.endswith(".json"):
@@ -114,8 +117,8 @@ def get_stats(evaluation_results_directory: str):
     return items, rows, row_names, flows
 
 
-def show_stats(evaluation_results_directory: str):
-    items, rows, row_names, _ = get_stats(evaluation_results_directory)
+def show_result_stats(evaluation_results_directory: str):
+    items, rows, row_names, _ = get_result_stats(evaluation_results_directory)
     total = len(items) * len(row_names) * 2
     full_total = sum([r["full"] for row in rows for r in row])
     partial_total = sum([r["partial"] for row in rows for r in row])
@@ -160,3 +163,63 @@ def show_stats(evaluation_results_directory: str):
     print("{0:0.2f}".format(partial_p))
     print("{0:0.2f}".format(none_p))
     print("{0:0.2f}".format(error_p))
+
+
+def get_dataset_stats(dataset_file: str):
+    dataset = load_dataset(dataset_file)
+    total = len(dataset.items)
+    task_groups = defaultdict(lambda: 0)
+    kinds_count = defaultdict(lambda: 0)
+    code_kinds_count = defaultdict(lambda: 0)
+    modification_kinds_count = defaultdict(lambda: 0)
+    python_version_count = defaultdict(lambda: 0)
+    for item in dataset.items:
+        task_group = item["task_name"].split("_")[0]
+        task_groups[task_group] += 1
+        kinds_count[item["kind"]] += 1
+        code_kinds_count[item["code_kind"]] += 1
+        python_version_count[item["python_version"]] += 1
+        if "modification_kind" in item:
+            modification_kinds_count[item["modification_kind"]] += 1
+    task_groups = list(task_groups.items())
+    task_groups.sort(key=lambda x: x[1], reverse=True)
+    kinds_count = list(kinds_count.items())
+    kinds_count.sort(key=lambda x: x[1], reverse=True)
+    code_kinds_count = list(code_kinds_count.items())
+    code_kinds_count.sort(key=lambda x: x[1], reverse=True)
+    modification_kinds_count = list(modification_kinds_count.items())
+    modification_kinds_count.sort(key=lambda x: x[1], reverse=True)
+    python_version_count = list(python_version_count.items())
+    python_version_count.sort(key=lambda x: x[1], reverse=True)
+
+    dates = [item["date"] for item in dataset.items]
+    dates.sort()
+
+    return dataset.name, total, task_groups, kinds_count, code_kinds_count, modification_kinds_count, dates, python_version_count
+
+def show_dataset_stats(dataset_file: str):
+    dataset_name, total, task_groups, kinds_count, code_kinds_count, modification_kinds_count, dates, python_version_count = get_dataset_stats(dataset_file)
+    print(f"Showing stats for: '{dataset_name}' ({total} entries)")
+    print("")
+    print(f"The dataset has {len(task_groups)} unique task groups:")
+    for (task_group_name, task_group_count) in task_groups:
+        print(f"{task_group_name}: {task_group_count}")
+    print("")
+    print(f"The dataset has {len(kinds_count)} unique task kinds:")
+    for (kinds_name, kinds_count) in kinds_count:
+        print(f"{kinds_name}: {kinds_count}")
+    print("")
+    print(f"The dataset has {len(code_kinds_count)} unique code kinds:")
+    for (code_kinds_name, code_kinds_count) in code_kinds_count:
+        print(f"{code_kinds_name}: {code_kinds_count}")
+    print("")
+    modification_total_count = sum([x[1] for x in modification_kinds_count])
+    print(f"The dataset has {len(modification_kinds_count)} (of {modification_total_count}) unique modification kinds:")
+    for (modification_kinds_name, modification_kinds_count) in modification_kinds_count:
+        print(f"{modification_kinds_name}: {modification_kinds_count}")
+    print("")
+    print(f"The dataset uses {len(python_version_count)} unique Python versions:")
+    for (python_version, count) in python_version_count:
+        print(f"{python_version}: {count}")
+    print("")
+    print(f"The items span from {dates[0]} to {dates[-1]}, with a median of {dates[len(dates)//2]}")

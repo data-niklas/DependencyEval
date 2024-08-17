@@ -1,5 +1,7 @@
 from os import path
+
 from dependency_eval.constants import INDENT, SALT
+
 
 def get_requirements(item) -> str:
     requirements = item["package_dependencies"].copy()

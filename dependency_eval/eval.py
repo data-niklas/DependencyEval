@@ -46,7 +46,7 @@ def get_docker_cmd(item: Dict[str, Any], code_file: str, requirements_file: str)
         "-it",
         "--rm",
         "--name",
-        "dev_dataset_eval_item_"+SALT,
+        "dev_dataset_eval_item_" + SALT,
         "-v",
         f"{requirements_file}:/tool/requirements.txt",
         "-v",
@@ -100,7 +100,9 @@ def eval_item(
         results = ["error", "error", "error"]
         item["test_results"] = results
     finally:
-        subprocess.Popen(["docker", "rm", "dev_dataset_eval_item_" + SALT, "-f"]).communicate()
+        subprocess.Popen(
+            ["docker", "rm", "dev_dataset_eval_item_" + SALT, "-f"]
+        ).communicate()
         os.remove(code_file)
         os.remove(requirements_file)
     return results
