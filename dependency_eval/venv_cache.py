@@ -56,9 +56,7 @@ def get_venv(
 
 
 def get_venv_for_item(
-    venv_cache_directory: str, venv_directory: Optional[str], llm_lsp_directory, item
+    venv_cache_directory: str, venv_directory: Optional[str], item
 ):
-    path.abspath(llm_lsp_directory)
     requirements = get_requirements(item)
-    requirements += "\n-e " + llm_lsp_directory
     get_venv(venv_cache_directory, venv_directory, requirements)

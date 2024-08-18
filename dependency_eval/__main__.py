@@ -34,7 +34,7 @@ from dependency_eval.models import LspGenerationConfig, ModelConfiguration
 from dependency_eval.plots import plot_stats
 from dependency_eval.stats import show_result_stats, show_dataset_stats
 from dependency_eval.table import export_table, show_table
-from dependency_eval.venv_cache import get_venv_for_item
+from dependency_eval.venv_cache import get_venv_for_item, create_venv
 
 
 def output_path(configuration: ModelConfiguration, results):
@@ -54,6 +54,7 @@ DEFAULT_DATASET_PATH = path.join(
     DATASET_DIST_PATH, f"DependencyEval_{DEFAULT_DATASET_VERSION}.jsonl"
 )
 DEFAULT_VENV_CACHE_DIRECTORY = path.join(PROJECT_BASE_PATH, "venv_cache")
+DEFAULT_LLM_LSP_VENV_DIRECTORY = path.join(PROJECT_BASE_PATH, "llm_lsp_venv")
 DEFAULT_COPILOT_NODE_SERVER_CACHE_DIRECTORY = path.join(
     PROJECT_BASE_PATH, "copilot-node-server"
 )
@@ -130,6 +131,7 @@ def export_evaluation_table(args, evaluation_results_directory: str, excel_file:
 @click.option(
     "--lsp-generation-config-file", default=DEFAULT_LSP_GENERATION_CONFIG_PATH
 )
+@click.option("--llm-lsp-venv-directory", default=DEFAULT_LLM_LSP_VENV_DIRECTORY)
 @click.pass_obj
 def all(
     args,
@@ -139,10 +141,13 @@ def all(
     results_directory: str,
     model_configurations_directory: str,
     lsp_generation_config_file: str,
+    llm_lsp_venv_directory: str
 ):
     model_configurations = read_model_configurations(model_configurations_directory)
     dataset = load_dataset(dataset_file)
     lsp_generation_config = load_lsp_generation_config(lsp_generation_config_file)
+    if not path.exists(llm_lsp_venv_directory):
+        create_venv(llm_lsp_venv_directory, path.abspath(llm_lsp_directory))
 
     if not path.exists(results_directory):
         os.makedirs(results_directory)
@@ -173,7 +178,7 @@ def all(
         os.mkdir(code_directory)
 
         venv_directory = path.join(code_directory, "venv")
-        get_venv_for_item(venv_cache_directory, venv_directory, llm_lsp_directory, item)
+        get_venv_for_item(venv_cache_directory, venv_directory, item)
 
         lsp_generation_config.enabled = True
         generated_with, generated_with_log, generated_with_duration = (
@@ -183,6 +188,7 @@ def all(
                 lsp_generation_config,
                 venv_directory,
                 code_directory,
+                llm_lsp_venv_directory
             )
         )
         item["generated_code_llm_lsp"] = generated_with
@@ -197,6 +203,7 @@ def all(
                 lsp_generation_config,
                 venv_directory,
                 code_directory,
+                llm_lsp_venv_directory
             )
         )
         item["generated_code_vanilla"] = generated_without
@@ -221,16 +228,15 @@ def all(
 
 @cli.command()
 @click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
-@click.option("--llm-lsp-directory", required=True)
 @click.option("--venv-cache-directory", default=DEFAULT_VENV_CACHE_DIRECTORY)
 @click.pass_obj
 def create_venvs(
-    args, dataset_file: str, llm_lsp_directory: str, venv_cache_directory: str
+    args, dataset_file: str, venv_cache_directory: str
 ):
     dataset = load_dataset(dataset_file)
     for item in tqdm(dataset.items):
         tqdm.write(item["task_name"])
-        get_venv_for_item(venv_cache_directory, None, llm_lsp_directory, item)
+        get_venv_for_item(venv_cache_directory, None, item)
 
 
 @cli.command()

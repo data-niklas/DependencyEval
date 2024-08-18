@@ -24,6 +24,7 @@ def run_neural_code_completion(
     lsp_generation_configuration: LspGenerationConfig,
     venv_directory: str,
     code_directory: str,
+    llm_lsp_venv_directory: str
 ):
     """Will consume the lsp generation"""
     lsp_generation_configuration.chat_history_log_file = LOG_FILE
@@ -38,8 +39,9 @@ def run_neural_code_completion(
         "Running generation "
         + ("with" if lsp_generation_configuration.enabled else "without")
     )
+    os.environ["VIRTUAL_ENV"] = venv_directory
     cmd = [
-        f"{venv_directory}/bin/python",
+        f"{llm_lsp_venv_directory}/bin/python",
         EVAL_PROMPT_FILE,
         code_file,
         model_configuration.model,

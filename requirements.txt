@@ -8,4 +8,5 @@ virtualenv-clone
 logzero
 # The following is only required for Copilot evaluation
 asyncio
-pygls @ git+https://github.com/openlawlibrary/pygls.git
+lsprotocol==2023.0.1
+pygls @ git+https://github.com/openlawlibrary/pygls.git@0d51815255369f2ba1b28def4f3981f2f5a8bced

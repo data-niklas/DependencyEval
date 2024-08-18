@@ -1,6 +1,7 @@
 venv_cache
 venv
 copilot-node-server
+llm_lsp_venv
 logs/*.log
 *.egg-info
 
