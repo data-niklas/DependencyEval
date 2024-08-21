@@ -266,7 +266,7 @@
         "code_kind": "parameter",
         "modification_kind": "addition",
         "changelog": "https://pandas.pydata.org/pandas-docs/version/2.2.2/whatsnew/v2.2.1.html",
-        "python_version": "3.8"
+        "python_version": "3.9"
     },
     {
         "task_name": "numpy_1",
@@ -279,12 +279,13 @@
         "code_kind": "parameter",
         "modification_kind": "addition",
         "changelog": "https://github.com/numpy/numpy/releases/tag/v2.0.0",
-        "python_version": "3.8"
+        "python_version": "3.9"
     },
     {
         "task_name": "pytorch_1",
         "package_dependencies": [
-            "torch==2.2.0"
+            "torch==2.2.0",
+            "numpy==1.26.4"
         ],
         "reason": "The parameter reduction of CrossEntropyLoss is the 'proper' way to choose a reduction. Other parameters such as reduce are deprecated since a long time",
         "kind": "modification",
@@ -292,12 +293,13 @@
         "code_kind": "parameter",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.4.1",
-        "python_version": "3.8"
+        "python_version": "3.9"
     },
     {
         "task_name": "pytorch_2",
         "package_dependencies": [
-            "torch==2.2.0"
+            "torch==2.2.0",
+            "numpy==1.26.4"
         ],
         "reason": "Torch Arange should be used in favor of Python arange or torch.range",
         "kind": "modification",
@@ -305,12 +307,13 @@
         "code_kind": "function",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.1.12",
-        "python_version": "3.8"
+        "python_version": "3.9"
     },
     {
         "task_name": "pytorch_3",
         "package_dependencies": [
-            "torch==2.2.0"
+            "torch==2.2.0",
+            "numpy==1.26.4"
         ],
         "reason": "The function cholesky was moved into another module",
         "kind": "modification",
@@ -318,6 +321,6 @@
         "code_kind": "parameter",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pytorch/pytorch/releases/tag/v1.8.0",
-        "python_version": "3.8"
+        "python_version": "3.9"
     }
 ]

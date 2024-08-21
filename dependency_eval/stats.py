@@ -75,10 +75,14 @@ def map_results(results):
     return r
 
 
-def get_result_stats(evaluation_results_directory: str):
+def get_result_stats(
+    evaluation_results_directory: str, evaluation_results_filter: str = ""
+):
     items = []
     for name in os.listdir(evaluation_results_directory):
         if not name.endswith(".json"):
+            continue
+        if evaluation_results_filter != "" and evaluation_results_filter not in name:
             continue
         with open(path.join(evaluation_results_directory, name), "r") as f:
             item = json.loads(f.read())
@@ -117,8 +121,12 @@ def get_result_stats(evaluation_results_directory: str):
     return items, rows, row_names, flows
 
 
-def show_result_stats(evaluation_results_directory: str):
-    items, rows, row_names, _ = get_result_stats(evaluation_results_directory)
+def show_result_stats(
+    evaluation_results_directory: str, evaluation_results_filter: str = ""
+):
+    items, rows, row_names, _ = get_result_stats(
+        evaluation_results_directory, evaluation_results_filter
+    )
     total = len(items) * len(row_names) * 2
     full_total = sum([r["full"] for row in rows for r in row])
     partial_total = sum([r["partial"] for row in rows for r in row])
@@ -195,31 +203,78 @@ def get_dataset_stats(dataset_file: str):
     dates = [item["date"] for item in dataset.items]
     dates.sort()
 
-    return dataset.name, total, task_groups, kinds_count, code_kinds_count, modification_kinds_count, dates, python_version_count
+    return (
+        dataset.name,
+        total,
+        task_groups,
+        kinds_count,
+        code_kinds_count,
+        modification_kinds_count,
+        dates,
+        python_version_count,
+    )
+
 
 def show_dataset_stats(dataset_file: str):
-    dataset_name, total, task_groups, kinds_count, code_kinds_count, modification_kinds_count, dates, python_version_count = get_dataset_stats(dataset_file)
+    (
+        dataset_name,
+        total,
+        task_groups,
+        kinds_count,
+        code_kinds_count,
+        modification_kinds_count,
+        dates,
+        python_version_count,
+    ) = get_dataset_stats(dataset_file)
     print(f"Showing stats for: '{dataset_name}' ({total} entries)")
     print("")
     print(f"The dataset has {len(task_groups)} unique task groups:")
-    for (task_group_name, task_group_count) in task_groups:
+    for task_group_name, task_group_count in task_groups:
         print(f"{task_group_name}: {task_group_count}")
     print("")
     print(f"The dataset has {len(kinds_count)} unique task kinds:")
-    for (kinds_name, kinds_count) in kinds_count:
+    for kinds_name, kinds_count in kinds_count:
         print(f"{kinds_name}: {kinds_count}")
     print("")
     print(f"The dataset has {len(code_kinds_count)} unique code kinds:")
-    for (code_kinds_name, code_kinds_count) in code_kinds_count:
+    for code_kinds_name, code_kinds_count in code_kinds_count:
         print(f"{code_kinds_name}: {code_kinds_count}")
     print("")
     modification_total_count = sum([x[1] for x in modification_kinds_count])
-    print(f"The dataset has {len(modification_kinds_count)} (of {modification_total_count}) unique modification kinds:")
-    for (modification_kinds_name, modification_kinds_count) in modification_kinds_count:
+    print(
+        f"The dataset has {len(modification_kinds_count)} (of {modification_total_count}) unique modification kinds:"
+    )
+    for modification_kinds_name, modification_kinds_count in modification_kinds_count:
         print(f"{modification_kinds_name}: {modification_kinds_count}")
     print("")
     print(f"The dataset uses {len(python_version_count)} unique Python versions:")
-    for (python_version, count) in python_version_count:
+    for python_version, count in python_version_count:
         print(f"{python_version}: {count}")
     print("")
-    print(f"The items span from {dates[0]} to {dates[-1]}, with a median of {dates[len(dates)//2]}")
+    print(
+        f"The items span from {dates[0]} to {dates[-1]}, with a median of {dates[len(dates)//2]}"
+    )
+
+
+def show_all_results_stats(base_directory: str, filter: str):
+    for directory in os.listdir(base_directory):
+        result_dir = path.join(base_directory, directory)
+        for file in os.listdir(result_dir):
+            file_path = path.join(result_dir, file)
+            if filter != "" and filter not in file_path:
+                continue
+            with open(file_path, "r") as f:
+                results = json.loads(f.read())
+                items = results["items"]
+                w_set = set()
+                wo_set = set()
+                for v in items:
+                    if "evaluated_code_llm_lsp" not in v or "evaluated_code_vanilla" not in v:
+                        continue
+                    if v["evaluated_code_llm_lsp"] == [0,0,2]:
+                        w_set.add(v["task_name"])
+                    if v["evaluated_code_vanilla"] == [0,0,2]:
+                        wo_set.add(v["task_name"])
+                wo_unique = wo_set - w_set
+                w_unique = w_set - wo_set
+                print(file_path.replace(base_directory + "/", "") + f"\nw: {len(w_set)} wo: {len(wo_set)} w - wo: {len(w_unique)} wo - w: {len(wo_unique)}")

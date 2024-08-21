@@ -1,0 +1,4 @@
+{
+    "use_completion_context": true,
+    "predict_correct_completion_symbol": true
+}

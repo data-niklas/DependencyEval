@@ -11,10 +11,12 @@ from dependency_eval.models import (
 )
 
 
-def read_model_configurations(directory):
+def read_model_configurations(directory, model_configuration_filter = ""):
     configurations = []
     for file_name in os.listdir(directory):
         if not file_name.endswith(".json"):
+            continue
+        if model_configuration_filter != "" and model_configuration_filter not in file_name:
             continue
         file_path = path.join(directory, file_name)
         with open(file_path, "r") as f:
@@ -66,5 +68,5 @@ def load_result_file(result_file):
         name=result_content["name"]
     )
     dataset_items = result_content["items"]
-    lsp_generation_config = result_content["lsp_generation_config"]
+    lsp_generation_config = LspGenerationConfig(**result_content["lsp_generation_config"])
     return model_configuration, dataset_items, lsp_generation_config

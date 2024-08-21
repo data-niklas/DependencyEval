@@ -27,12 +27,12 @@ from dependency_eval.loader import (
     load_lsp_generation_config,
     read_generation_results,
     read_model_configurations,
-    load_result_file
+    load_result_file,
 )
 from dependency_eval.loop import run_loop
 from dependency_eval.models import LspGenerationConfig, ModelConfiguration
 from dependency_eval.plots import plot_stats
-from dependency_eval.stats import show_result_stats, show_dataset_stats
+from dependency_eval.stats import show_result_stats, show_dataset_stats, show_all_results_stats
 from dependency_eval.table import export_table, show_table
 from dependency_eval.venv_cache import get_venv_for_item, create_venv
 
@@ -88,9 +88,21 @@ def build(args, update_type):
 
 @cli.command()
 @click.option("-r", "--evaluation-results-directory", required=True)
+@click.option("-f", "--evaluation-results-filter", default="")
 @click.pass_obj
-def evaluation_stats(args, evaluation_results_directory: str):
-    show_result_stats(evaluation_results_directory)
+def evaluation_stats(
+    args, evaluation_results_directory: str, evaluation_results_filter: str
+):
+    show_result_stats(evaluation_results_directory, evaluation_results_filter)
+
+@cli.command()
+@click.option("-f", "--evaluation-results-filter", default="")
+@click.pass_obj
+def all_evaluation_stats(
+    args, evaluation_results_filter: str
+):
+    show_all_results_stats(EVALUATION_RESULT_PATH, evaluation_results_filter)
+
 
 @cli.command()
 @click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
@@ -129,9 +141,10 @@ def export_evaluation_table(args, evaluation_results_directory: str, excel_file:
 @click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
 @click.option("--model-configurations-directory", default=MODEL_CONFIGURATIONS_PATH)
 @click.option(
-    "--lsp-generation-config-file", default=DEFAULT_LSP_GENERATION_CONFIG_PATH
+    "--lsp-generation-config-file", default=path.join(DEFAULT_LSP_GENERATION_CONFIG_PATH, "default.json")
 )
 @click.option("--llm-lsp-venv-directory", default=DEFAULT_LLM_LSP_VENV_DIRECTORY)
+@click.option("--model-configuration-filter", default="")
 @click.pass_obj
 def all(
     args,
@@ -141,13 +154,16 @@ def all(
     results_directory: str,
     model_configurations_directory: str,
     lsp_generation_config_file: str,
-    llm_lsp_venv_directory: str
+    llm_lsp_venv_directory: str,
+    model_configuration_filter: str,
 ):
-    model_configurations = read_model_configurations(model_configurations_directory)
+    model_configurations = read_model_configurations(
+        model_configurations_directory, model_configuration_filter
+    )
     dataset = load_dataset(dataset_file)
     lsp_generation_config = load_lsp_generation_config(lsp_generation_config_file)
     if not path.exists(llm_lsp_venv_directory):
-        create_venv(llm_lsp_venv_directory, path.abspath(llm_lsp_directory))
+        create_venv(llm_lsp_venv_directory, "-e " + path.abspath(llm_lsp_directory))
 
     if not path.exists(results_directory):
         os.makedirs(results_directory)
@@ -162,7 +178,7 @@ def all(
             "config": model_configuration.config,
             "name": model_configuration.name,
             "items": dataset.items,
-            "lsp_generation_config": lsp_generation_config_dict
+            "lsp_generation_config": lsp_generation_config_dict,
         }
         with open(out_path, "w") as f:
             f.write(json.dumps(result))
@@ -188,7 +204,7 @@ def all(
                 lsp_generation_config,
                 venv_directory,
                 code_directory,
-                llm_lsp_venv_directory
+                llm_lsp_venv_directory,
             )
         )
         item["generated_code_llm_lsp"] = generated_with
@@ -203,7 +219,7 @@ def all(
                 lsp_generation_config,
                 venv_directory,
                 code_directory,
-                llm_lsp_venv_directory
+                llm_lsp_venv_directory,
             )
         )
         item["generated_code_vanilla"] = generated_without
@@ -223,16 +239,20 @@ def all(
         item["evaluated_code_vanilla"] = eval_results_without
         rmtree(code_directory)
 
-    run_loop(model_configurations, dataset, model_configuration_finished_cb, item_cb, maybe_skip_model_configuration_cb)
+    run_loop(
+        model_configurations,
+        dataset,
+        model_configuration_finished_cb,
+        item_cb,
+        maybe_skip_model_configuration_cb,
+    )
 
 
 @cli.command()
 @click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
 @click.option("--venv-cache-directory", default=DEFAULT_VENV_CACHE_DIRECTORY)
 @click.pass_obj
-def create_venvs(
-    args, dataset_file: str, venv_cache_directory: str
-):
+def create_venvs(args, dataset_file: str, venv_cache_directory: str):
     dataset = load_dataset(dataset_file)
     for item in tqdm(dataset.items):
         tqdm.write(item["task_name"])
@@ -281,7 +301,9 @@ async def evaluate_copilot_inner(
             rmtree(code_directory)
         os.mkdir(code_directory)
         if not result_exists:
-            lsp = await create_copilot_lsp(code_directory, copilot_node_server_directory)
+            lsp = await create_copilot_lsp(
+                code_directory, copilot_node_server_directory
+            )
             (
                 generated_without,
                 generated_without_duration,
@@ -304,11 +326,50 @@ async def evaluate_copilot_inner(
         "config": model_configuration.config,
         "name": model_configuration.name,
         "items": dataset.items,
-        "lsp_generation_config": lsp_generation_config_dict
+        "lsp_generation_config": lsp_generation_config_dict,
     }
     with open(out_path, "w") as f:
         f.write(json.dumps(result))
 
+
+
+@cli.command()
+@click.option("--results-directory", default=DEFAULT_EVALUATION_RESULT_PATH)
+@click.pass_obj
+def eval(args, results_directory: str):
+    for f in os.listdir(results_directory):
+        out_path = path.join(results_directory, f)
+        model_configuration, dataset_items, lsp_generation_config = load_result_file(out_path)
+        for item in tqdm(dataset_items):
+            tqdm.write(item["task_name"])
+            code_directory = get_code_directory(PROJECT_BASE_PATH, item)
+            if path.exists(code_directory):
+                rmtree(code_directory)
+            os.mkdir(code_directory)
+            lsp_generation_config.enabled = True
+            eval_results_with = eval_item(
+                model_configuration, item, lsp_generation_config, code_directory
+            )
+            item["evaluated_code_llm_lsp"] = eval_results_with
+
+            lsp_generation_config.enabled = False
+            eval_results_without = eval_item(
+                model_configuration, item, lsp_generation_config, code_directory
+            )
+            item["evaluated_code_vanilla"] = eval_results_without
+            rmtree(code_directory) 
+        lsp_generation_config_dict = asdict(lsp_generation_config)
+        del lsp_generation_config_dict["chat_history_log_file"]
+        del lsp_generation_config_dict["enabled"]
+        result = {
+            "model": model_configuration.model,
+            "config": model_configuration.config,
+            "name": model_configuration.name,
+            "items": dataset_items,
+            "lsp_generation_config": lsp_generation_config_dict,
+        }
+        with open(out_path, "w") as f:
+            f.write(json.dumps(result))
 
 if __name__ == "__main__":
     cli()
