@@ -137,10 +137,10 @@ def show_result_stats(
     error_p = error_total / total * 100
     none_p = none_total / total * 100
     print("All:")
-    print("{0:0.2f}".format(full_p))
-    print("{0:0.2f}".format(partial_p))
-    print("{0:0.2f}".format(none_p))
-    print("{0:0.2f}".format(error_p))
+    print("{0:0.2f} {1}".format(full_p, full_total))
+    print("{0:0.2f} {1}".format(partial_p, partial_total))
+    print("{0:0.2f} {1}".format(none_p, none_total))
+    print("{0:0.2f} {1}".format(error_p, error_total))
     print("------")
     v_total = total / 2
     full_total = sum([r["full"] for row in rows for r in row if r["lsp"] == 0])
@@ -152,10 +152,10 @@ def show_result_stats(
     error_p = error_total / v_total * 100
     none_p = none_total / v_total * 100
     print("No LLM_LSP:")
-    print("{0:0.2f}".format(full_p))
-    print("{0:0.2f}".format(partial_p))
-    print("{0:0.2f}".format(none_p))
-    print("{0:0.2f}".format(error_p))
+    print("{0:0.2f} {1}".format(full_p, full_total))
+    print("{0:0.2f} {1}".format(partial_p, partial_total))
+    print("{0:0.2f} {1}".format(none_p, none_total))
+    print("{0:0.2f} {1}".format(error_p, error_total))
     print("------")
     v_total = total / 2
     full_total = sum([r["full"] for row in rows for r in row if r["lsp"] == 1])
@@ -167,10 +167,10 @@ def show_result_stats(
     error_p = error_total / v_total * 100
     none_p = none_total / v_total * 100
     print("With LLM_LSP:")
-    print("{0:0.2f}".format(full_p))
-    print("{0:0.2f}".format(partial_p))
-    print("{0:0.2f}".format(none_p))
-    print("{0:0.2f}".format(error_p))
+    print("{0:0.2f} {1}".format(full_p, full_total))
+    print("{0:0.2f} {1}".format(partial_p, partial_total))
+    print("{0:0.2f} {1}".format(none_p, none_total))
+    print("{0:0.2f} {1}".format(error_p, error_total))
 
 
 def get_dataset_stats(dataset_file: str):

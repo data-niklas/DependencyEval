@@ -346,11 +346,12 @@ def eval(args, results_directory: str):
             if path.exists(code_directory):
                 rmtree(code_directory)
             os.mkdir(code_directory)
-            lsp_generation_config.enabled = True
-            eval_results_with = eval_item(
-                model_configuration, item, lsp_generation_config, code_directory
-            )
-            item["evaluated_code_llm_lsp"] = eval_results_with
+            if "generated_code_llm_lsp" in item:
+                lsp_generation_config.enabled = True
+                eval_results_with = eval_item(
+                    model_configuration, item, lsp_generation_config, code_directory
+                )
+                item["evaluated_code_llm_lsp"] = eval_results_with
 
             lsp_generation_config.enabled = False
             eval_results_without = eval_item(
