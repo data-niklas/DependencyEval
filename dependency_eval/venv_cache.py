@@ -37,6 +37,17 @@ def create_venv(venv_directory: str, requirements: str):
     subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     os.remove(REQUIREMENTS_FILE)
 
+def get_item_venv_cache_directory(
+    item,
+    venv_cache_directory
+):
+    requirements = get_requirements(item)
+    requirement_items = requirements.split("\n")
+    requirement_items.sort()
+    requirements = "\n".join(requirement_items)
+    requirements_hash = hash(requirements)
+    return path.join(venv_cache_directory, requirements_hash)
+    
 
 def get_venv(
     venv_cache_directory: str, venv_directory: Optional[str], requirements: str

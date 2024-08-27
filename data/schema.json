@@ -62,6 +62,9 @@
       },
       "python_version": {
         "type": "string"
+      },
+      "package_name": {
+        "type": "string"
       }
     },
     "required": [

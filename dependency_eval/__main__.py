@@ -32,7 +32,7 @@ from dependency_eval.loader import (
 from dependency_eval.loop import run_loop
 from dependency_eval.models import LspGenerationConfig, ModelConfiguration
 from dependency_eval.plots import plot_stats
-from dependency_eval.stats import show_result_stats, show_dataset_stats, show_all_results_stats
+from dependency_eval.stats import show_result_stats, show_dataset_stats, show_all_results_stats, show_dependencies_stats
 from dependency_eval.table import export_table, show_table
 from dependency_eval.venv_cache import get_venv_for_item, create_venv
 
@@ -371,6 +371,21 @@ def eval(args, results_directory: str):
         }
         with open(out_path, "w") as f:
             f.write(json.dumps(result))
+
+
+
+@cli.command()
+@click.option("--dataset-file", default=DEFAULT_DATASET_PATH)
+@click.option("--venv-cache-directory", default=DEFAULT_VENV_CACHE_DIRECTORY)
+@click.option("--out-file", default="dependency_stats.json")
+@click.pass_obj
+def dependency_stats(
+    args,
+    dataset_file: str,
+    venv_cache_directory: str,
+    out_file: str
+):
+    show_dependencies_stats(dataset_file, venv_cache_directory, out_file)
 
 if __name__ == "__main__":
     cli()

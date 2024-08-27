@@ -8,6 +8,10 @@ from os import path
 
 from dependency_eval.loader import load_dataset
 from dependency_eval.models import KINDS, CODE_KINDS, MODIFICATION_KIND
+from dependency_eval.venv_cache import get_venv_for_item, get_item_venv_cache_directory
+
+import pygount
+import tqdm
 
 
 def lt_config(a, b):
@@ -278,3 +282,50 @@ def show_all_results_stats(base_directory: str, filter: str):
                 wo_unique = wo_set - w_set
                 w_unique = w_set - wo_set
                 print(file_path.replace(base_directory + "/", "") + f"\nw: {len(w_set)} wo: {len(wo_set)} w - wo: {len(w_unique)} wo - w: {len(wo_unique)}")
+
+def get_dependency_stats(item, venv_cache_directory):
+    import logging
+    logging.getLogger("pygount").setLevel("CRITICAL")
+    get_venv_for_item(venv_cache_directory, None, item)
+    venv_dir = get_item_venv_cache_directory(item, venv_cache_directory)
+    lib_dir = path.join(venv_dir, "lib")
+    site_packages_path = path.join(lib_dir, os.listdir(lib_dir)[0], "site-packages")
+    dependency_dir = path.join(site_packages_path, item["package_name"])
+    tqdm.tqdm.write(item["package_name"])
+
+    with pygount.analysis.SourceScanner(
+        iter([dependency_dir]), "*", pygount.common.regexes_from(pygount.analysis.DEFAULT_FOLDER_PATTERNS_TO_SKIP_TEXT), pygount.common.regexes_from(pygount.analysis.DEFAULT_NAME_PATTERNS_TO_SKIP_TEXT)
+    ) as source_scanner:
+        source_paths_and_groups_to_analyze = list(source_scanner.source_paths())
+        duplicate_pool = pygount.analysis.DuplicatePool()
+        from pygount.write import BaseWriter
+        is_stdout = True
+        with BaseWriter(None) as writer:
+            for source_path, group in tqdm.tqdm(source_paths_and_groups_to_analyze):
+                writer.add(
+                    pygount.analysis.SourceAnalysis.from_file(
+                        source_path,
+                        group,
+                        "automatic",
+                        pygount.analysis.DEFAULT_FALLBACK_ENCODING,
+                        generated_regexes=pygount.common.regexes_from(pygount.analysis.DEFAULT_GENERATED_PATTERNS_TEXT),
+                        duplicate_pool=duplicate_pool,
+                        merge_embedded_language=False,
+                    )
+                )
+        return writer.project_summary.total_code_count, writer.project_summary.total_documentation_percentage
+
+
+def show_dependencies_stats(dataset_file, venv_cache_directory, out_file):
+    dataset = load_dataset(dataset_file)
+    results = {}
+    for item in tqdm.tqdm(dataset.items):
+        if item["package_name"] in results:
+            continue
+        loc, documentation_percentage = get_dependency_stats(item, venv_cache_directory)
+        results[item["package_name"]] = {
+            "lines_of_code": loc,
+            "documentation_percentage": documentation_percentage
+        }
+    with open(out_file, "w") as f:
+        f.write(json.dumps(results))

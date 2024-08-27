@@ -99,7 +99,10 @@ def eval_item(
     except Exception as e:
         tqdm.write(f"Error: {e}")
         results = ["error", "error", "error"]
-        item["test_results"] = results
+        if lsp_generation_config.enabled:
+            item["evaluation_error_llm_lsp"] = stdout_text
+        else:
+            item["evaluation_error_vanilla"] = stdout_text
     finally:
         subprocess.Popen(
             ["docker", "rm", "dev_dataset_eval_item_" + SALT, "-f"]

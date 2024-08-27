@@ -10,7 +10,8 @@
         "code_kind": "parameter",
         "modification_kind": "removal",
         "changelog": "https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "bidict"
     },
     {
         "task_name": "bidict_2",
@@ -22,7 +23,8 @@
         "date": "2024-02-14",
         "code_kind": "property",
         "changelog": "https://github.com/jab/bidict/blob/main/CHANGELOG.rst#0230-2024-02-14",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "bidict"
     },
     {
         "task_name": "dotted_1",
@@ -34,7 +36,8 @@
         "date": "2015-10-30",
         "code_kind": "method",
         "changelog": "https://github.com/carlosescri/DottedDict/blob/v0.1.8/CHANGES.txt",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "dotted"
     },
     {
         "task_name": "dotted_2",
@@ -46,7 +49,8 @@
         "date": "2015-10-30",
         "code_kind": "method",
         "changelog": "https://github.com/carlosescri/DottedDict/blob/v0.1.8/CHANGES.txt",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "dotted"
     },
     {
         "task_name": "fastapi_1",
@@ -59,7 +63,8 @@
         "code_kind": "parameter",
         "modification_kind": "deprecation",
         "changelog": "https://fastapi.tiangolo.com/release-notes/#0930",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "fastapi"
     
     },
     {
@@ -72,7 +77,8 @@
         "date": "2024-02-14",
         "code_kind": "block",
         "changelog": "https://github.com/pola-rs/polars/releases/tag/py-0.20.10",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "polars"
     },
     {
         "task_name": "pydantic_1",
@@ -85,7 +91,8 @@
         "code_kind": "method",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pydantic/pydantic/blob/v2.6.2/HISTORY.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "pydantic"
     },
     {
         "task_name": "pydantic_2",
@@ -98,7 +105,8 @@
         "code_kind": "method",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pydantic/pydantic/blob/v2.6.2/HISTORY.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "pydantic"
     },
     {
         "task_name": "pydantic_3",
@@ -111,7 +119,8 @@
         "code_kind": "method",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pydantic/pydantic/blob/v2.6.2/HISTORY.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "pydantic"
     },
     {
         "task_name": "rich_1",
@@ -124,7 +133,8 @@
         "code_kind": "method",
         "modification_kind": "addition",
         "changelog": "https://github.com/Textualize/rich/blob/v13.7.0/CHANGELOG.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "rich"
     },
     {
         "task_name": "rich_2",
@@ -137,7 +147,8 @@
         "code_kind": "parameter",
         "modification_kind": "addition",
         "changelog": "https://raw.githubusercontent.com/Textualize/rich/db17c2370cab8e06574fa8f9a7bbc6dbd3a73a3f/CHANGELOG.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "rich"
     },
     {
         "task_name": "sklearn_1",
@@ -150,7 +161,8 @@
         "code_kind": "parameter",
         "modification_kind": "rename",
         "changelog": "https://scikit-learn.org/stable/whats_new/v1.2.html#id22",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "scipy"
     },
     {
         "task_name": "sklearn_2",
@@ -163,7 +175,8 @@
         "code_kind": "parameter",
         "modification_kind": "addition",
         "changelog": "https://scikit-learn.org/stable/whats_new/v1.4.html#dataframe-support",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "scipy"
     },
     {
         "task_name": "sqlalchemy_1",
@@ -176,7 +189,8 @@
         "code_kind": "method",
         "modification_kind": "rename",
         "changelog": "https://github.com/sqlalchemy/sqlalchemy/blob/rel_2_0_27/doc/build/changelog/changelog_20.rst",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "sqlalchemy"
     },
     {
         "task_name": "textual_1",
@@ -189,7 +203,8 @@
         "code_kind": "parameter",
         "modification_kind": "rename",
         "changelog": "https://github.com/Textualize/textual/blob/v0.51.0/CHANGELOG.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "textual"
     },
     {
         "task_name": "textual_2",
@@ -202,7 +217,8 @@
         "code_kind": "field",
         "modification_kind": "addition",
         "changelog": "https://github.com/Textualize/textual/blob/v0.52.0/CHANGELOG.md",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "textual"
     },
     {
         "task_name": "tsv2py_1",
@@ -214,7 +230,8 @@
         "date": "2024-02-01",
         "code_kind": "block",
         "changelog": "https://github.com/hunyadi/tsv2py/releases/tag/0.6.0",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "tsv"
     },
     {
         "task_name": "dateutil_1",
@@ -227,7 +244,8 @@
         "code_kind": "module",
         "modification_kind": "addition",
         "changelog": "https://github.com/dateutil/dateutil/blob/1ae807774053c071acc9e7d3d27778fba0a7773e/NEWS#L22",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "dateutil"
     },
     {
         "task_name": "emoji_1",
@@ -240,7 +258,8 @@
         "code_kind": "function",
         "modification_kind": "addition",
         "changelog": "https://github.com/carpedm20/emoji/blob/master/CHANGES.md#v260-2023-06-28",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "emoji"
     },
     {
         "task_name": "theflow_1",
@@ -253,7 +272,8 @@
         "code_kind": "package",
         "modification_kind": "addition",
         "changelog": "https://github.com/trducng/theflow/compare/v0.8.5...v0.8.6",
-        "python_version": "3.8"
+        "python_version": "3.8",
+        "package_name": "theflow"
     },
     {
         "task_name": "pandas_1",
@@ -266,7 +286,8 @@
         "code_kind": "parameter",
         "modification_kind": "addition",
         "changelog": "https://pandas.pydata.org/pandas-docs/version/2.2.2/whatsnew/v2.2.1.html",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "pandas"
     },
     {
         "task_name": "numpy_1",
@@ -279,7 +300,8 @@
         "code_kind": "parameter",
         "modification_kind": "addition",
         "changelog": "https://github.com/numpy/numpy/releases/tag/v2.0.0",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "numpy"
     },
     {
         "task_name": "pytorch_1",
@@ -293,7 +315,8 @@
         "code_kind": "parameter",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.4.1",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "torch"
     },
     {
         "task_name": "pytorch_2",
@@ -307,7 +330,8 @@
         "code_kind": "function",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pytorch/pytorch/releases/tag/v0.1.12",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "torch"
     },
     {
         "task_name": "pytorch_3",
@@ -321,6 +345,7 @@
         "code_kind": "parameter",
         "modification_kind": "deprecation",
         "changelog": "https://github.com/pytorch/pytorch/releases/tag/v1.8.0",
-        "python_version": "3.9"
+        "python_version": "3.9",
+        "package_name": "torch"
     }
 ]
