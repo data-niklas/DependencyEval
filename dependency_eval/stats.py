@@ -294,7 +294,7 @@ def get_dependency_stats(item, venv_cache_directory):
     tqdm.tqdm.write(item["package_name"])
 
     with pygount.analysis.SourceScanner(
-        iter([dependency_dir]), "*", pygount.common.regexes_from(pygount.analysis.DEFAULT_FOLDER_PATTERNS_TO_SKIP_TEXT), pygount.common.regexes_from(pygount.analysis.DEFAULT_NAME_PATTERNS_TO_SKIP_TEXT)
+        iter([dependency_dir]), "py", pygount.common.regexes_from(pygount.analysis.DEFAULT_FOLDER_PATTERNS_TO_SKIP_TEXT), pygount.common.regexes_from(pygount.analysis.DEFAULT_NAME_PATTERNS_TO_SKIP_TEXT)
     ) as source_scanner:
         source_paths_and_groups_to_analyze = list(source_scanner.source_paths())
         duplicate_pool = pygount.analysis.DuplicatePool()
@@ -313,7 +313,7 @@ def get_dependency_stats(item, venv_cache_directory):
                         merge_embedded_language=False,
                     )
                 )
-        return writer.project_summary.total_code_count, writer.project_summary.total_documentation_percentage
+        return writer.project_summary.total_code_count, writer.project_summary.total_documentation_count
 
 
 def show_dependencies_stats(dataset_file, venv_cache_directory, out_file):
@@ -325,7 +325,7 @@ def show_dependencies_stats(dataset_file, venv_cache_directory, out_file):
         loc, documentation_percentage = get_dependency_stats(item, venv_cache_directory)
         results[item["package_name"]] = {
             "lines_of_code": loc,
-            "documentation_percentage": documentation_percentage
+            "lines_of_doc": documentation_percentage
         }
     with open(out_file, "w") as f:
         f.write(json.dumps(results))

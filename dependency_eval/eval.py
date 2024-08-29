@@ -83,6 +83,7 @@ def eval_item(
 
     tqdm.write("Running evaluation")
     cmd = get_docker_cmd(item, code_file, requirements_file)
+    stdout_text = ""
     try:
         # 2m timeout, as pip install of pytorch takes 80s alone
         output, errors = subprocess.Popen(
