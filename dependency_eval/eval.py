@@ -60,7 +60,7 @@ def get_docker_cmd(item: Dict[str, Any], code_file: str, requirements_file: str)
         get_docker_image(item["python_version"]),
         "sh",
         "-c",
-        "apt update >/dev/null 2>/dev/null&& apt install git -y >/dev/null 2>/dev/null && python -m venv /tool/venv && /tool/venv/bin/pip install -r /tool/requirements.txt 2>error.log >/dev/null && /tool/venv/bin/python llm_lsp_code.py || cat error.log",
+        "apt update >/dev/null 2>/dev/null&& apt install git -y >/dev/null 2>/dev/null && python -m venv /tool/venv && /tool/venv/bin/pip install --upgrade pip 2>/dev/null >/dev/null && /tool/venv/bin/pip install setuptools wheel 2>/dev/null >/dev/null && /tool/venv/bin/pip install -r /tool/requirements.txt 2>error.log >/dev/null && /tool/venv/bin/python llm_lsp_code.py || cat error.log",
     ]
 
 
@@ -88,7 +88,7 @@ def eval_item(
         # 2m timeout, as pip install of pytorch takes 80s alone
         output, errors = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
-        ).communicate(timeout=120)  # TODO: switch to docker build to only timeout test
+        ).communicate(timeout=180)  # TODO: switch to docker build to only timeout test
         stdout_text = output.decode()
         stdout_text = stdout_text.strip()
         if stdout_text.endswith("]") and "[" in stdout_text:
